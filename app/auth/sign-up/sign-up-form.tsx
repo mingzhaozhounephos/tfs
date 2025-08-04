@@ -48,7 +48,7 @@ export function SignUpForm({
           emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=/`,
           // TODO: deal with role
           data: {
-            name: name,
+            full_name: name, // Changed from 'name' to 'full_name' for consistency
             role: 'driver' // Set default role for self-registered users
           }
         }
