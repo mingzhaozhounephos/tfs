@@ -3,18 +3,15 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  Menu, 
-  ChevronDown, 
-  ChevronRight, 
-  PanelLeftClose, 
+import {
+  Menu,
+  ChevronDown,
+  ChevronRight,
+  PanelLeftClose,
   PanelLeftOpen,
   Home,
-  Palette,
-  Settings,
+  Video,
   Users,
-  Building2,
-  Cog,
   LogOut,
   User
 } from 'lucide-react';
@@ -23,7 +20,12 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import Logo from '@/components/icons/Logo';
 import DarkModeToggle from '@/components/ui/DarkModeToggle';
@@ -33,7 +35,12 @@ import { handleRequest } from '@/utils/auth-helpers/client';
 import { getRedirectMethod } from '@/utils/auth-helpers/settings';
 import { useRouter } from 'next/navigation';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { RouteConfig, getAccessibleRoutes, navigationRoutes, UserRole } from '@/utils/route-protection';
+import {
+  RouteConfig,
+  getAccessibleRoutes,
+  navigationRoutes,
+  UserRole
+} from '@/utils/route-protection';
 
 interface SideNavigationProps {
   user: {
@@ -46,11 +53,8 @@ interface SideNavigationProps {
 // Icon mapping
 const iconMap = {
   Home,
-  Palette,
-  Settings,
+  Video,
   Users,
-  Building2,
-  Cog,
   User,
   LogOut
 };
@@ -63,7 +67,13 @@ interface NavItemProps {
   isCollapsed?: boolean;
 }
 
-function NavItem({ route, pathname, onNavigate, level = 0, isCollapsed = false }: NavItemProps) {
+function NavItem({
+  route,
+  pathname,
+  onNavigate,
+  level = 0,
+  isCollapsed = false
+}: NavItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const isActive = pathname === route.path;
   const isParentActive = pathname.startsWith(route.path) && route.path !== '/';
@@ -86,34 +96,26 @@ function NavItem({ route, pathname, onNavigate, level = 0, isCollapsed = false }
   };
 
   const navItem = (
-    <div className={cn("relative", level > 0 && "ml-4")}>
+    <div className={cn('relative', level > 0 && 'ml-4')}>
       <div className="flex items-center group">
         <Link
           href={route.path}
           className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground",
-            "flex-1 min-w-0",
-            isActive && "bg-primary text-primary-foreground hover:bg-primary/90",
-            isParentActive && !isActive && "bg-muted text-muted-foreground",
-            isCollapsed && level === 0 && "justify-center px-2"
+            'flex items-center w-full px-4 py-2 rounded-lg text-left gap-2 font-medium transition-all',
+            isActive
+              ? 'bg-[#EA384C] text-white'
+              : 'hover:bg-[#ea384c1a] text-black',
+            isCollapsed && level === 0 && 'justify-center px-2'
           )}
           onClick={onNavigate}
         >
           {IconComponent && (
-            <IconComponent className={cn(
-              "h-4 w-4 shrink-0",
-              isActive && "text-primary-foreground"
-            )} />
+            <IconComponent
+              className={cn('h-5 w-5 shrink-0', isActive && 'text-white')}
+            />
           )}
           {(!isCollapsed || level > 0) && (
-            <>
-              <span className="truncate">{route.label}</span>
-              {isParentActive && !isActive && level === 0 && (
-                <Badge variant="secondary" className="ml-auto text-xs">
-                  Active
-                </Badge>
-              )}
-            </>
+            <span className="truncate">{route.label}</span>
           )}
         </Link>
         {hasChildren && (!isCollapsed || level > 0) && (
@@ -122,9 +124,9 @@ function NavItem({ route, pathname, onNavigate, level = 0, isCollapsed = false }
             size="sm"
             onClick={handleToggle}
             className={cn(
-              "h-8 w-8 p-0 shrink-0",
-              "opacity-0 group-hover:opacity-100 transition-opacity",
-              (isExpanded || isParentActive) && "opacity-100"
+              'h-8 w-8 p-0 shrink-0',
+              'opacity-0 group-hover:opacity-100 transition-opacity',
+              (isExpanded || isParentActive) && 'opacity-100'
             )}
           >
             {isExpanded ? (
@@ -135,7 +137,7 @@ function NavItem({ route, pathname, onNavigate, level = 0, isCollapsed = false }
           </Button>
         )}
       </div>
-      
+
       {hasChildren && isExpanded && (!isCollapsed || level > 0) && (
         <div className="mt-1 space-y-1 border-l border-border ml-2 pl-2">
           {route.children!.map((child) => (
@@ -157,9 +159,7 @@ function NavItem({ route, pathname, onNavigate, level = 0, isCollapsed = false }
   if (isCollapsed && level === 0) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>
-          {navItem}
-        </TooltipTrigger>
+        <TooltipTrigger asChild>{navItem}</TooltipTrigger>
         <TooltipContent side="right" className="font-medium">
           {route.label}
         </TooltipContent>
@@ -181,27 +181,48 @@ interface SideNavContentProps {
   onToggleCollapse?: () => void;
 }
 
-function SideNavContent({ user, isAdmin, onNavigate, isCollapsed = false, onToggleCollapse }: SideNavContentProps) {
+function SideNavContent({
+  user,
+  isAdmin,
+  onNavigate,
+  isCollapsed = false,
+  onToggleCollapse
+}: SideNavContentProps) {
   const pathname = usePathname();
   const router = getRedirectMethod() === 'client' ? useRouter() : null;
-  
-  const userRole: UserRole = isAdmin ? 'admin' : user ? 'user' : null;
-  const accessibleRoutes = getAccessibleRoutes(navigationRoutes, user, userRole);
+
+  const userRole: UserRole = isAdmin ? 'admin' : user ? 'driver' : null;
+  const accessibleRoutes = getAccessibleRoutes(
+    navigationRoutes,
+    user,
+    userRole
+  );
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-white border-r border-gray-200">
       {/* Header */}
-      <div className={cn(
-        "flex items-center border-b border-border p-4",
-        isCollapsed ? "justify-center flex-col space-y-2" : "justify-between"
-      )}>
-        <Link href="/" className="flex items-center space-x-2" onClick={onNavigate}>
-          <Logo />
-        </Link>
-        
+      <div
+        className={cn(
+          'flex items-center justify-between px-6 py-4 border-b border-gray-200',
+          isCollapsed ? 'justify-center flex-col space-y-2' : 'justify-between'
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-md bg-[#EA384C] text-white font-bold">
+            TFS
+          </div>
+          {!isCollapsed && (
+            <div>
+              <span className="font-bold text-lg">Driver Hub</span>
+              <div className="text-xs text-gray-500">
+                {isAdmin ? 'Admin Dashboard' : 'Driver Dashboard'}
+              </div>
+            </div>
+          )}
+        </div>
+
         {!isCollapsed && (
           <div className="flex items-center space-x-2">
-            <DarkModeToggle />
             {onToggleCollapse && (
               <Button
                 variant="ghost"
@@ -214,7 +235,7 @@ function SideNavContent({ user, isAdmin, onNavigate, isCollapsed = false, onTogg
             )}
           </div>
         )}
-        
+
         {isCollapsed && onToggleCollapse && (
           <Button
             variant="ghost"
@@ -228,8 +249,8 @@ function SideNavContent({ user, isAdmin, onNavigate, isCollapsed = false, onTogg
       </div>
 
       {/* Navigation */}
-      <ScrollArea className="flex-1 px-3 py-4">
-        <nav className="space-y-2">
+      <ScrollArea className="flex-1 px-2 py-4">
+        <nav className="space-y-1">
           {accessibleRoutes.map((route) => (
             <NavItem
               key={route.path}
@@ -243,9 +264,9 @@ function SideNavContent({ user, isAdmin, onNavigate, isCollapsed = false, onTogg
       </ScrollArea>
 
       {/* Footer */}
-      <div className="border-t border-border p-4">
+      <div className="p-4 border-t border-gray-200 mt-auto">
         {user ? (
-          <div className={cn("space-y-3", isCollapsed && "space-y-2")}>
+          <div className={cn('space-y-3', isCollapsed && 'space-y-2')}>
             {!isCollapsed && (
               <>
                 <div className="flex items-center space-x-3">
@@ -266,7 +287,7 @@ function SideNavContent({ user, isAdmin, onNavigate, isCollapsed = false, onTogg
                 <Separator />
               </>
             )}
-            
+
             <form
               onSubmit={(e) => {
                 handleRequest(e, SignOut, router);
@@ -278,43 +299,57 @@ function SideNavContent({ user, isAdmin, onNavigate, isCollapsed = false, onTogg
               {isCollapsed ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button type="submit" variant="ghost" size="sm" className="w-full h-8 px-2">
+                    <Button
+                      type="submit"
+                      variant="ghost"
+                      size="sm"
+                      className="w-full h-8 px-2"
+                    >
                       <LogOut className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="right">
-                    Sign out
-                  </TooltipContent>
+                  <TooltipContent side="right">Sign out</TooltipContent>
                 </Tooltip>
               ) : (
-                <Button type="submit" variant="ghost" size="sm" className="w-full justify-start">
+                <Button
+                  type="submit"
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start border-gray-300 hover:border-[#ea384c1a] text-black hover:text-[#EA384C] hover:bg-[#ea384c1a]"
+                >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Sign out
+                  Log out
                 </Button>
               )}
             </form>
           </div>
         ) : (
-          <div className={cn("space-y-2", isCollapsed && "space-y-1")}>
+          <div className={cn('space-y-2', isCollapsed && 'space-y-1')}>
             {isCollapsed ? (
               <>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Link href="/auth/login" onClick={onNavigate}>
-                      <Button variant="ghost" size="sm" className="w-full h-8 px-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full h-8 px-2"
+                      >
                         <User className="h-4 w-4" />
                       </Button>
                     </Link>
                   </TooltipTrigger>
-                  <TooltipContent side="right">
-                    Sign In
-                  </TooltipContent>
+                  <TooltipContent side="right">Sign In</TooltipContent>
                 </Tooltip>
               </>
             ) : (
               <>
                 <Link href="/auth/login" onClick={onNavigate}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start"
+                  >
                     <User className="h-4 w-4 mr-2" />
                     Sign In
                   </Button>
@@ -355,7 +390,6 @@ export default function SideNavigation({ user, isAdmin }: SideNavigationProps) {
               <Logo />
             </Link>
             <div className="flex items-center space-x-2">
-              <DarkModeToggle />
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="sm">
@@ -364,9 +398,9 @@ export default function SideNavigation({ user, isAdmin }: SideNavigationProps) {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-80 p-0">
-                  <SideNavContent 
-                    user={user} 
-                    isAdmin={isAdmin} 
+                  <SideNavContent
+                    user={user}
+                    isAdmin={isAdmin}
                     onNavigate={handleNavigate}
                   />
                 </SheetContent>
@@ -380,13 +414,15 @@ export default function SideNavigation({ user, isAdmin }: SideNavigationProps) {
 
   return (
     <TooltipProvider>
-      <aside className={cn(
-        "fixed left-0 top-0 z-40 h-screen border-r bg-background transition-all duration-300",
-        isCollapsed ? "w-16" : "w-64"
-      )}>
-        <SideNavContent 
-          user={user} 
-          isAdmin={isAdmin} 
+      <aside
+        className={cn(
+          'fixed left-0 top-0 z-40 h-screen border-r bg-background transition-all duration-300',
+          isCollapsed ? 'w-16' : 'w-64'
+        )}
+      >
+        <SideNavContent
+          user={user}
+          isAdmin={isAdmin}
           isCollapsed={isCollapsed}
           onToggleCollapse={handleToggleCollapse}
         />
