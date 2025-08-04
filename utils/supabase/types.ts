@@ -148,6 +148,104 @@ export type Database = {
         }
         Relationships: []
       }
+      users_videos: {
+        Row: {
+          assigned_date: string | null
+          completed_date: string | null
+          created_at: string
+          id: string
+          is_completed: boolean | null
+          last_action: Database["public"]["Enums"]["videoActionsEnum"] | null
+          last_watched: string | null
+          modified_date: string | null
+          user: string | null
+          video: string | null
+        }
+        Insert: {
+          assigned_date?: string | null
+          completed_date?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean | null
+          last_action?: Database["public"]["Enums"]["videoActionsEnum"] | null
+          last_watched?: string | null
+          modified_date?: string | null
+          user?: string | null
+          video?: string | null
+        }
+        Update: {
+          assigned_date?: string | null
+          completed_date?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean | null
+          last_action?: Database["public"]["Enums"]["videoActionsEnum"] | null
+          last_watched?: string | null
+          modified_date?: string | null
+          user?: string | null
+          video?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_videos_user_users_id_fk"
+            columns: ["user"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_videos_video_videos_id_fk"
+            columns: ["video"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      videos: {
+        Row: {
+          admin_user_id: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: string
+          is_annual_renewal: boolean | null
+          title: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          admin_user_id?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_annual_renewal?: boolean | null
+          title?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          admin_user_id?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_annual_renewal?: boolean | null
+          title?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "videos_admin_user_id_users_id_fk"
+            columns: ["admin_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -157,6 +255,7 @@ export type Database = {
     }
     Enums: {
       rolesEnum: "admin" | "driver"
+      videoActionsEnum: "watched" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -273,6 +372,7 @@ export const Constants = {
   public: {
     Enums: {
       rolesEnum: ["admin", "driver"],
+      videoActionsEnum: ["watched", "completed"],
     },
   },
 } as const
