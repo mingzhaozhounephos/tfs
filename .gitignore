@@ -44,3 +44,7 @@ certificates
 
 playwright-report/*
 test-results/*
+
+# cursor
+.cursor/rules
+
