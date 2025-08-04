@@ -36,6 +36,13 @@
       "when": 1754306890302,
       "tag": "20250804112810_orange_blue_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1754307298879,
+      "tag": "20250804113458_lethal_smasher",
+      "breakpoints": true
     }
   ]
 }

@@ -165,7 +165,7 @@ export const videos = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
-    adminUserId: uuid('admin_user_id').references(() => users.id, {
+    adminUser: uuid('admin_user').references(() => users.id, {
       onDelete: 'cascade'
     }),
     title: text('title'),

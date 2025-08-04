@@ -204,7 +204,7 @@ export type Database = {
       }
       videos: {
         Row: {
-          admin_user_id: string | null
+          admin_user: string | null
           category: string | null
           created_at: string
           description: string | null
@@ -215,7 +215,7 @@ export type Database = {
           youtube_url: string | null
         }
         Insert: {
-          admin_user_id?: string | null
+          admin_user?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -226,7 +226,7 @@ export type Database = {
           youtube_url?: string | null
         }
         Update: {
-          admin_user_id?: string | null
+          admin_user?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -238,8 +238,8 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "videos_admin_user_id_users_id_fk"
-            columns: ["admin_user_id"]
+            foreignKeyName: "videos_admin_user_users_id_fk"
+            columns: ["admin_user"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
