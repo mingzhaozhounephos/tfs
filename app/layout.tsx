@@ -7,7 +7,10 @@ import { getURL } from '@/utils/helpers';
 import { cookies } from 'next/headers';
 import Providers from '@/providers/providers';
 import 'styles/main.css';
-import { createClient, getCurrentUserQueryResult } from '@/utils/supabase/server';
+import {
+  createClient,
+  getCurrentUserQueryResult
+} from '@/utils/supabase/server';
 
 const title = 'Decodifi AI Starter';
 const description = 'Brought to you by Vercel, Stripe, and Supabase.';
@@ -29,7 +32,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
 
   const supabase = createClient();
   let userQueryResult;
-  
+
   try {
     userQueryResult = await getCurrentUserQueryResult(supabase);
   } catch (error) {
@@ -44,14 +47,26 @@ export default async function RootLayout({ children }: PropsWithChildren) {
     };
   }
 
+  // Check if user is authenticated
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  const isAuthenticated = !!user;
+
   return (
     <html lang="en" className={theme || 'light'}>
       <Providers userQueryResult={userQueryResult}>
         <body>
-          <Navbar />
-          <MainContentWrapper>
-            {children}
-          </MainContentWrapper>
+          {isAuthenticated ? (
+            <>
+              <Navbar />
+              <MainContentWrapper>{children}</MainContentWrapper>
+            </>
+          ) : (
+            // Simple layout for unauthenticated users
+            <main className="min-h-screen">{children}</main>
+          )}
           <Suspense>
             <Toaster />
           </Suspense>
