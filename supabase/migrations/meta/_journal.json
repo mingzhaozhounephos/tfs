@@ -22,6 +22,13 @@
       "when": 1751467426160,
       "tag": "20250702144346_famous_paladin",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1754284198849,
+      "tag": "20250804050958_freezing_maggott",
+      "breakpoints": true
     }
   ]
 }

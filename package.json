@@ -30,7 +30,7 @@
     "test:report": "playwright show-report",
     "test:install": "playwright install",
     "test:clean": "rm -rf test-results playwright-report",
-    "db:migrate": "bun run supabase/migrations/migrate.ts",
+    "db:migrate": "bunx supabase db push --local",
     "db:diff": "drizzle-kit generate",
     "db:push": "bunx supabase db push --linked",
     "db:studio": "drizzle-kit studio"

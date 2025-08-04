@@ -84,11 +84,11 @@ BEGIN
     NEW.raw_user_meta_data->>'avatar_url'
   );
 
-  -- Set user role from metadata or default to 'user'
+  -- Set user role from metadata or default to 'driver'
   INSERT INTO public.roles (user_id, role)
   VALUES (
     NEW.id, 
-    COALESCE(NEW.raw_user_meta_data->>'system_role', 'user')::public."rolesEnum"
+    COALESCE(NEW.raw_user_meta_data->>'system_role', 'driver')::public."rolesEnum"
   );
 
   -- If user was invited to an organisation, add them to it
