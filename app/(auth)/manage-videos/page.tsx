@@ -1,6 +1,8 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
+import { executeWithMetadata } from '@/utils/supabase/server';
 import VideosTable from './VideosTable';
 import { redirect } from 'next/navigation';
 
@@ -32,8 +34,39 @@ export type VideoFormData = {
   is_annual_renewal?: boolean;
 };
 
+export type User = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  role: string;
+  users_videos: {
+    video: string | null;
+    is_completed: boolean | null;
+  }[];
+};
+
+// Type for the raw user data from the database
+type RawUser = {
+  id: string;
+  full_name: string | null;
+  roles: { role: string }[];
+};
+
+// Type for the raw user data with assignments from the database
+type RawUserWithAssignments = {
+  id: string;
+  full_name: string | null;
+  roles: { role: string }[];
+  users_videos: {
+    video: string | null;
+    is_completed: boolean | null;
+  }[];
+};
+
 export default async function ManageVideosPage() {
   const supabase = createClient();
+  const supabaseAdmin = createAdminClient();
+
   const {
     data: { user },
     error: userError
@@ -95,6 +128,36 @@ export default async function ManageVideosPage() {
       };
     }) || [];
 
+  // Fetch users for assignment modal using executeWithMetadata for consistency
+  const usersQuery = supabase
+    .from('users')
+    .select(
+      `
+      id,
+      full_name,
+      roles!inner(role),
+      users_videos(
+        video,
+        is_completed
+      )
+    `
+    )
+    .eq('is_active', true);
+
+  const usersQueryResult =
+    await executeWithMetadata<RawUserWithAssignments>(usersQuery);
+
+  // Transform the data to match the User interface
+  const transformedUsers: User[] = (usersQueryResult.data || [])
+    .map((user: RawUserWithAssignments) => ({
+      id: user.id,
+      email: '', // We don't have email in public.users, will need to get from auth if needed
+      full_name: user.full_name,
+      role: user.roles?.[0]?.role || 'driver',
+      users_videos: user.users_videos || []
+    }))
+    .filter((user) => user.id); // Only include users with valid IDs
+
   return (
     <div className="flex-1 bg-white p-8 min-h-screen">
       <div className="flex flex-col gap-2 items-start mb-2">
@@ -104,7 +167,11 @@ export default async function ManageVideosPage() {
           className="h-8 w-auto mb-2"
         />
       </div>
-      <VideosTable videos={transformedData} userId={user.id} />
+      <VideosTable
+        videos={transformedData}
+        userId={user.id}
+        users={transformedUsers}
+      />
     </div>
   );
 }

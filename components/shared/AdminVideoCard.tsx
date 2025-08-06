@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { createClient } from '@/utils/supabase/hooks';
+import { AssignVideoModal } from './AssignVideoModal';
 
 interface VideoWithStats {
   id: string;
@@ -26,10 +26,17 @@ interface VideoWithStats {
   description: string;
   youtube_url: string;
   category: string;
-  duration?: string;
+  duration: string | null;
   created_at: string;
   num_of_assigned_users?: number;
   completion_rate?: number;
+}
+
+interface User {
+  id: string;
+  email: string;
+  full_name: string | null;
+  role: string;
 }
 
 interface AdminVideoCardProps {
@@ -38,6 +45,8 @@ interface AdminVideoCardProps {
   showEdit?: boolean;
   onAssignToUsers?: () => void;
   onDelete?: (videoId: string) => void;
+  users?: User[];
+  onAssignVideo?: (videoId: string, selectedUserIds: string[]) => Promise<void>;
 }
 
 /**
@@ -72,7 +81,9 @@ export function AdminVideoCard({
   onEdit,
   showEdit = false,
   onAssignToUsers,
-  onDelete
+  onDelete,
+  users = [],
+  onAssignVideo
 }: AdminVideoCardProps) {
   const [showModal, setShowModal] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
@@ -103,6 +114,23 @@ export function AdminVideoCard({
       setError(err instanceof Error ? err.message : 'Failed to delete video');
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleAssignToUsers = () => {
+    if (onAssignVideo) {
+      setAssignModalOpen(true);
+    } else if (onAssignToUsers) {
+      onAssignToUsers();
+    }
+  };
+
+  const handleAssignVideo = async (
+    videoId: string,
+    selectedUserIds: string[]
+  ) => {
+    if (onAssignVideo) {
+      await onAssignVideo(videoId, selectedUserIds);
     }
   };
 
@@ -238,7 +266,7 @@ export function AdminVideoCard({
 
       <Button
         className="mt-auto bg-red-500 text-white hover:bg-red-600"
-        onClick={() => setAssignModalOpen(true)}
+        onClick={handleAssignToUsers}
       >
         Assign to Users
       </Button>
@@ -309,6 +337,19 @@ export function AdminVideoCard({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Assign Video Modal */}
+      {assignModalOpen && onAssignVideo && (
+        <AssignVideoModal
+          isOpen={assignModalOpen}
+          onClose={() => setAssignModalOpen(false)}
+          videoId={video.id}
+          videoTitle={video.title}
+          assignedCount={video.num_of_assigned_users || 0}
+          users={users}
+          onAssign={handleAssignVideo}
+        />
       )}
     </div>
   );

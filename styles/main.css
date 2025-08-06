@@ -20,8 +20,9 @@ html {
 
 html,
 body {
-  font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Helvetica Neue',
-    'Helvetica', sans-serif;
+  font-family:
+    -apple-system, system-ui, BlinkMacSystemFont, 'Helvetica Neue', 'Helvetica',
+    sans-serif;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   @apply text-white dark:text-white text-zinc-900 bg-zinc-800 dark:bg-zinc-800 bg-white antialiased;
@@ -53,8 +54,6 @@ p a {
 .height-screen-helper {
   min-height: calc(100vh - 80px);
 }
-
-
 
 @layer base {
   :root {
