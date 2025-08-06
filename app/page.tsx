@@ -1,23 +1,19 @@
 'use server';
 
-import {
-  createClient,
-  executeWithMetadata,
-  QueryResult,
-  getCurrentUserQueryResult
-} from '@/utils/supabase/server';
-import { Tables } from '@/utils/supabase/types';
-import { Client } from './client';
+import { createClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
 
-export default async function HomePage() {
+export default async function RootPage() {
   const supabase = createClient();
-  
-  // Build your queries here
-  const userQueryResult = await getCurrentUserQueryResult(supabase);
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
 
-  return (
-    <>
-      <Client userQueryResult={userQueryResult} />
-    </>
-  );
+  if (userError || !user) {
+    return redirect('/auth/login');
+  }
+
+  // Redirect authenticated users to the authenticated home page
+  return redirect('/dashboard');
 }
