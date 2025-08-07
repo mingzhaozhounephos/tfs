@@ -44,7 +44,7 @@ export interface AdminUser {
 export interface CreateUserData {
   email: string;
   full_name?: string;
-  role?: 'admin' | 'user';
+  role?: 'admin' | 'driver';
   organisation_id?: string;
   organisation_role?: string;
 }
@@ -151,7 +151,7 @@ export async function getAllUsers(): Promise<AdminUser[]> {
       email_confirmed_at: authUser.email_confirmed_at,
       created_at: authUser.created_at,
       last_sign_in_at: authUser.last_sign_in_at,
-      role: role?.role || 'user',
+      role: role?.role || 'driver',
       is_active: publicUser?.is_active ?? true,
       organisations: userOrgs
     };
@@ -353,7 +353,7 @@ export async function updateUser(userId: string, data: UpdateUserData) {
         .from('roles')
         .upsert([{
           user_id: userId,
-          role: data.role as 'admin' | 'user'
+          role: data.role as 'admin' | 'driver'
         }]);
 
       if (roleError) {
