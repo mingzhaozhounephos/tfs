@@ -7,7 +7,13 @@ import { getOrganisationSettings } from '@/utils/auth-helpers/settings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 interface Organisation {
   id: string;
@@ -24,7 +30,7 @@ interface UserFormProps {
 export default function UserForm({ organisations, user, mode }: UserFormProps) {
   const router = useRouter();
   const { allowOrganisations } = getOrganisationSettings();
-  
+
   const [formData, setFormData] = useState({
     email: user?.email || '',
     full_name: user?.full_name || '',
@@ -32,7 +38,7 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
     organisation_id: '',
     organisation_role: 'user'
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,7 +52,7 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
         const createData = {
           email: formData.email.trim(),
           full_name: formData.full_name.trim() || undefined,
-          role: formData.role as 'admin' | 'user',
+          role: formData.role as 'admin' | 'driver',
           organisation_id: formData.organisation_id || undefined,
           organisation_role: formData.organisation_role || undefined
         };
@@ -68,7 +74,8 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
         router.push('/admin/users');
       }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to save user';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to save user';
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -91,7 +98,9 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
             id="email"
             required
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
             placeholder="user@example.com"
           />
         </div>
@@ -102,7 +111,9 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
             type="text"
             id="full_name"
             value={formData.full_name}
-            onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, full_name: e.target.value })
+            }
             placeholder="John Doe"
           />
         </div>
@@ -110,12 +121,17 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
 
       <div className="space-y-2">
         <Label htmlFor="role">System Role *</Label>
-        <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value as 'admin' | 'user' })}>
+        <Select
+          value={formData.role}
+          onValueChange={(value) =>
+            setFormData({ ...formData, role: value as 'admin' | 'user' })
+          }
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select a role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="user">User</SelectItem>
+            <SelectItem value="driver">Driver</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
         </Select>
@@ -124,8 +140,15 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
       {mode === 'create' && allowOrganisations && organisations.length > 0 && (
         <>
           <div className="space-y-2">
-            <Label htmlFor="organisation_id">Add to Organisation (Optional)</Label>
-            <Select value={formData.organisation_id} onValueChange={(value) => setFormData({ ...formData, organisation_id: value })}>
+            <Label htmlFor="organisation_id">
+              Add to Organisation (Optional)
+            </Label>
+            <Select
+              value={formData.organisation_id}
+              onValueChange={(value) =>
+                setFormData({ ...formData, organisation_id: value })
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select an organisation..." />
               </SelectTrigger>
@@ -142,7 +165,12 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
           {formData.organisation_id && (
             <div className="space-y-2">
               <Label htmlFor="organisation_role">Organisation Role</Label>
-              <Select value={formData.organisation_role} onValueChange={(value) => setFormData({ ...formData, organisation_role: value })}>
+              <Select
+                value={formData.organisation_role}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, organisation_role: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
@@ -159,13 +187,14 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
       )}
 
       <div className="flex gap-4">
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create User' : 'Update User'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting
+            ? 'Saving...'
+            : mode === 'create'
+              ? 'Create User'
+              : 'Update User'}
         </Button>
-        
+
         <Button
           type="button"
           variant="outline"
@@ -176,4 +205,4 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
       </div>
     </form>
   );
-} 
+}

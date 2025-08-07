@@ -80,8 +80,11 @@ export interface AdminOrganisation extends Tables<'organisations'> {
 // Check if current user is admin
 async function verifyAdminAccess(): Promise<string> {
   const supabase = createServerClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
+
   if (userError || !user) {
     redirect('/auth/login');
     return 'Unauthorized: Admin access required';
@@ -106,15 +109,17 @@ export async function getAllUsers(): Promise<AdminUser[]> {
   await verifyAdminAccess();
 
   // Get users from auth.users
-  const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers();
-  
+  const { data: authUsers, error: authError } =
+    await supabaseAdmin.auth.admin.listUsers();
+
   if (authError) {
+    console.log('authError:::', authError);
     throw new Error(`Failed to fetch users: ${authError.message}`);
   }
 
   // Get roles and organisations for users
-  const userIds = authUsers.users.map(user => user.id);
-  
+  const userIds = authUsers.users.map((user) => user.id);
+
   const { data: roles } = await supabaseAdmin
     .from('roles')
     .select('user_id, role')
@@ -122,13 +127,15 @@ export async function getAllUsers(): Promise<AdminUser[]> {
 
   const { data: organisations } = await supabaseAdmin
     .from('organisation_memberships')
-    .select(`
+    .select(
+      `
       id,
       user_id,
       organisation_id,
       role,
       organisation:organisations(id, name, slug)
-    `)
+    `
+    )
     .in('user_id', userIds);
 
   // Get public user data
@@ -138,10 +145,11 @@ export async function getAllUsers(): Promise<AdminUser[]> {
     .in('id', userIds);
 
   // Combine all data
-  const users: AdminUser[] = authUsers.users.map(authUser => {
-    const role = roles?.find(r => r.user_id === authUser.id);
-    const userOrgs = organisations?.filter(org => org.user_id === authUser.id) || [];
-    const publicUser = publicUsers?.find(p => p.id === authUser.id);
+  const users: AdminUser[] = authUsers.users.map((authUser) => {
+    const role = roles?.find((r) => r.user_id === authUser.id);
+    const userOrgs =
+      organisations?.filter((org) => org.user_id === authUser.id) || [];
+    const publicUser = publicUsers?.find((p) => p.id === authUser.id);
 
     return {
       id: authUser.id,
@@ -166,7 +174,8 @@ export async function getAllOrganisations(): Promise<AdminOrganisation[]> {
 
   const { data: organisations, error } = await supabaseAdmin
     .from('organisations')
-    .select(`
+    .select(
+      `
       *,
       organisation_memberships(
         id,
@@ -175,7 +184,8 @@ export async function getAllOrganisations(): Promise<AdminOrganisation[]> {
         role,
         user:users(id, full_name, avatar_url)
       )
-    `)
+    `
+    )
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -191,17 +201,19 @@ export async function createUser(data: CreateUserData) {
 
   try {
     // Create auth user and let the database trigger handle public user record and role creation
-    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
-      redirectTo: getURL('/auth/callback?redirectTo=/auth/update-password'),
-      data: {
-        full_name: data.full_name || '',
-        system_role: data.role || 'user',
-        ...(data.organisation_id && data.organisation_role && {
-          organisation_id: data.organisation_id,
-          organisation_role: data.organisation_role
-        })
-      }
-    });
+    const { data: authUser, error: authError } =
+      await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
+        redirectTo: getURL('/auth/callback?redirectTo=/auth/update-password'),
+        data: {
+          full_name: data.full_name || '',
+          system_role: data.role || 'user',
+          ...(data.organisation_id &&
+            data.organisation_role && {
+              organisation_id: data.organisation_id,
+              organisation_role: data.organisation_role
+            })
+        }
+      });
 
     if (authError) {
       throw new Error(`Failed to create user: ${authError.message}`);
@@ -213,14 +225,15 @@ export async function createUser(data: CreateUserData) {
 
     // The database trigger automatically creates:
     // - public.users record
-    // - public.roles record  
+    // - public.roles record
     // - public.organisation_memberships record (if organisation data provided)
     // So we don't need to manually insert into these tables
 
     revalidatePath('/admin/users');
     return { success: true, user: authUser.user };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to create user';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to create user';
     throw new Error(errorMessage);
   }
 }
@@ -231,17 +244,19 @@ export async function sendWelcomeEmail(userId: string) {
 
   try {
     // Get user email
-    const { data: authUser, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(userId);
-    
+    const { data: authUser, error: getUserError } =
+      await supabaseAdmin.auth.admin.getUserById(userId);
+
     if (getUserError || !authUser.user?.email) {
       throw new Error('User not found or email not available');
     }
 
     // Re-send invite email using admin.inviteUserByEmail
-    const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(authUser.user.email, {
-      redirectTo: getURL('/auth/callback?redirectTo=/auth/update-password'),
-      data: authUser.user.user_metadata
-    });
+    const { error: inviteError } =
+      await supabaseAdmin.auth.admin.inviteUserByEmail(authUser.user.email, {
+        redirectTo: getURL('/auth/callback?redirectTo=/auth/update-password'),
+        data: authUser.user.user_metadata
+      });
 
     if (inviteError) {
       throw new Error(`Failed to send welcome email: ${inviteError.message}`);
@@ -249,7 +264,8 @@ export async function sendWelcomeEmail(userId: string) {
 
     return { success: true };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to send welcome email';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to send welcome email';
     throw new Error(errorMessage);
   }
 }
@@ -260,8 +276,9 @@ export async function sendPasswordResetOrInvite(userId: string) {
 
   try {
     // Get user email and verification status
-    const { data: authUser, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(userId);
-    
+    const { data: authUser, error: getUserError } =
+      await supabaseAdmin.auth.admin.getUserById(userId);
+
     if (getUserError || !authUser.user?.email) {
       throw new Error('User not found or email not available');
     }
@@ -277,28 +294,34 @@ export async function sendPasswordResetOrInvite(userId: string) {
       console.error('Error checking user active status:', userDataError);
       // Continue if we can't check status, but log the error
     } else if (userData && userData.is_active === false) {
-      throw new Error('Cannot send emails to deactivated users. Please reactivate the user first.');
+      throw new Error(
+        'Cannot send emails to deactivated users. Please reactivate the user first.'
+      );
     }
 
     const isVerified = !!authUser.user.email_confirmed_at;
 
     if (isVerified) {
       // User is verified - send password reset email
-      const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(authUser.user.email, {
-        redirectTo: getURL('/auth/callback?redirectTo=/auth/update-password'),
-      });
+      const { error: resetError } =
+        await supabaseAdmin.auth.resetPasswordForEmail(authUser.user.email, {
+          redirectTo: getURL('/auth/callback?redirectTo=/auth/update-password')
+        });
 
       if (resetError) {
-        throw new Error(`Failed to send password reset email: ${resetError.message}`);
+        throw new Error(
+          `Failed to send password reset email: ${resetError.message}`
+        );
       }
 
       return { success: true, type: 'password_reset' };
     } else {
       // User is not verified - send invite email
-      const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(authUser.user.email, {
-        redirectTo: getURL('/auth/callback?redirectTo=/auth/update-password'),
-        data: authUser.user.user_metadata
-      });
+      const { error: inviteError } =
+        await supabaseAdmin.auth.admin.inviteUserByEmail(authUser.user.email, {
+          redirectTo: getURL('/auth/callback?redirectTo=/auth/update-password'),
+          data: authUser.user.user_metadata
+        });
 
       if (inviteError) {
         throw new Error(`Failed to send invite email: ${inviteError.message}`);
@@ -307,7 +330,8 @@ export async function sendPasswordResetOrInvite(userId: string) {
       return { success: true, type: 'invite' };
     }
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to send email';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to send email';
     throw new Error(errorMessage);
   }
 }
@@ -325,10 +349,8 @@ export async function updateUser(userId: string, data: UpdateUserData) {
     }
 
     if (Object.keys(updateData).length > 0) {
-      const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
-        userId,
-        updateData
-      );
+      const { error: authError } =
+        await supabaseAdmin.auth.admin.updateUserById(userId, updateData);
 
       if (authError) {
         throw new Error(`Failed to update user: ${authError.message}`);
@@ -349,12 +371,12 @@ export async function updateUser(userId: string, data: UpdateUserData) {
 
     // Update role
     if (data.role) {
-      const { error: roleError } = await supabaseAdmin
-        .from('roles')
-        .upsert([{
+      const { error: roleError } = await supabaseAdmin.from('roles').upsert([
+        {
           user_id: userId,
           role: data.role as 'admin' | 'driver'
-        }]);
+        }
+      ]);
 
       if (roleError) {
         console.error('Role update error:', roleError);
@@ -364,7 +386,8 @@ export async function updateUser(userId: string, data: UpdateUserData) {
     revalidatePath('/admin/users');
     return { success: true };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to update user';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to update user';
     throw new Error(errorMessage);
   }
 }
@@ -375,7 +398,8 @@ export async function deleteUser(userId: string) {
 
   try {
     // Delete from auth
-    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    const { error: authError } =
+      await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (authError) {
       throw new Error(`Failed to delete user: ${authError.message}`);
@@ -385,7 +409,8 @@ export async function deleteUser(userId: string) {
     revalidatePath('/admin/users');
     return { success: true };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to delete user';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to delete user';
     throw new Error(errorMessage);
   }
 }
@@ -397,10 +422,12 @@ export async function createOrganisation(data: CreateOrganisationData) {
   try {
     const { data: organisation, error } = await supabaseAdmin
       .from('organisations')
-      .insert([{
-        name: data.name,
-        slug: data.slug
-      }])
+      .insert([
+        {
+          name: data.name,
+          slug: data.slug
+        }
+      ])
       .select()
       .single();
 
@@ -411,13 +438,17 @@ export async function createOrganisation(data: CreateOrganisationData) {
     revalidatePath('/admin/organisations');
     return { success: true, organisation };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to create organisation';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to create organisation';
     throw new Error(errorMessage);
   }
 }
 
 // Update organisation
-export async function updateOrganisation(organisationId: string, data: UpdateOrganisationData) {
+export async function updateOrganisation(
+  organisationId: string,
+  data: UpdateOrganisationData
+) {
   await verifyAdminAccess();
 
   try {
@@ -435,7 +466,8 @@ export async function updateOrganisation(organisationId: string, data: UpdateOrg
     revalidatePath('/admin/organisations');
     return { success: true, organisation };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to update organisation';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to update organisation';
     throw new Error(errorMessage);
   }
 }
@@ -457,7 +489,8 @@ export async function deleteOrganisation(organisationId: string) {
     revalidatePath('/admin/organisations');
     return { success: true };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to delete organisation';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to delete organisation';
     throw new Error(errorMessage);
   }
 }
@@ -468,8 +501,9 @@ export async function sendMagicLink(userId: string) {
 
   try {
     // Get user email
-    const { data: authUser, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(userId);
-    
+    const { data: authUser, error: getUserError } =
+      await supabaseAdmin.auth.admin.getUserById(userId);
+
     if (getUserError || !authUser.user?.email) {
       throw new Error('User not found or email not available');
     }
@@ -488,7 +522,8 @@ export async function sendMagicLink(userId: string) {
 
     return { success: true };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to send magic link';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to send magic link';
     throw new Error(errorMessage);
   }
 }
@@ -498,10 +533,10 @@ export async function resetUserPassword(userId: string, newPassword: string) {
   await verifyAdminAccess();
 
   try {
-    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-      userId,
-      { password: newPassword }
-    );
+    const { error: updateError } =
+      await supabaseAdmin.auth.admin.updateUserById(userId, {
+        password: newPassword
+      });
 
     if (updateError) {
       throw new Error(`Failed to reset password: ${updateError.message}`);
@@ -509,7 +544,8 @@ export async function resetUserPassword(userId: string, newPassword: string) {
 
     return { success: true };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to reset password';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to reset password';
     throw new Error(errorMessage);
   }
 }
@@ -533,11 +569,13 @@ export async function addMemberToOrganisation(data: AddMemberData) {
   try {
     const { error } = await supabaseAdmin
       .from('organisation_memberships')
-      .insert([{
-        user_id: data.user_id,
-        organisation_id: data.organisation_id,
-        role: data.role
-      }]);
+      .insert([
+        {
+          user_id: data.user_id,
+          organisation_id: data.organisation_id,
+          role: data.role
+        }
+      ]);
 
     if (error) {
       throw new Error(`Failed to add member: ${error.message}`);
@@ -548,13 +586,17 @@ export async function addMemberToOrganisation(data: AddMemberData) {
     revalidatePath(`/admin/organisations/${data.organisation_id}/manage`);
     return { success: true };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to add member';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to add member';
     throw new Error(errorMessage);
   }
 }
 
 // Update member role
-export async function updateMemberRole(membershipId: string, data: UpdateMemberData) {
+export async function updateMemberRole(
+  membershipId: string,
+  data: UpdateMemberData
+) {
   await verifyAdminAccess();
 
   try {
@@ -571,13 +613,17 @@ export async function updateMemberRole(membershipId: string, data: UpdateMemberD
     revalidatePath(`/admin/organisations/*`);
     return { success: true };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to update member role';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to update member role';
     throw new Error(errorMessage);
   }
 }
 
 // Remove member from organisation
-export async function removeMemberFromOrganisation(membershipId: string, organisationId: string) {
+export async function removeMemberFromOrganisation(
+  membershipId: string,
+  organisationId: string
+) {
   await verifyAdminAccess();
 
   try {
@@ -595,18 +641,22 @@ export async function removeMemberFromOrganisation(membershipId: string, organis
     revalidatePath(`/admin/organisations/${organisationId}/manage`);
     return { success: true };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to remove member';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to remove member';
     throw new Error(errorMessage);
   }
 }
 
 // Get organisation by ID with members
-export async function getOrganisationById(organisationId: string): Promise<AdminOrganisation | null> {
+export async function getOrganisationById(
+  organisationId: string
+): Promise<AdminOrganisation | null> {
   await verifyAdminAccess();
 
   const { data: organisation, error } = await supabaseAdmin
     .from('organisations')
-    .select(`
+    .select(
+      `
       *,
       organisation_memberships(
         id,
@@ -615,7 +665,8 @@ export async function getOrganisationById(organisationId: string): Promise<Admin
         role,
         user:users(id, full_name, avatar_url)
       )
-    `)
+    `
+    )
     .eq('id', organisationId)
     .single();
 

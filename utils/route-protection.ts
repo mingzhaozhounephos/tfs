@@ -17,7 +17,7 @@ export const navigationRoutes: RouteConfig[] = [
     requiresAuth: true
   },
   {
-    path: '/manage-videos',
+    path: '/admin/manage-videos',
     label: 'Manage Videos',
     icon: 'Video',
     requiredRole: 'admin',
@@ -31,7 +31,7 @@ export const navigationRoutes: RouteConfig[] = [
     requiresAuth: true
   },
   {
-    path: '/manage-users',
+    path: '/admin/users',
     label: 'Manage Users',
     icon: 'Users',
     requiredRole: 'admin',

@@ -1,13 +1,21 @@
-import { createClient } from '@/utils/supabase/server';
+import { createClient, executeWithMetadata } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
-import { getAllUsers, AdminUser } from '@/app/admin/users/actions';
-import UserManagementTable from '@/components/admin/UserManagementTable';
+import { Tables } from '@/utils/supabase/types';
+import { ManageUsersClient } from './manage-users-client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
+// Define the expected shape of the data with roles
+export type UserWithRole = Tables<'users'> & {
+  roles: Tables<'roles'>[];
+};
+
 export default async function AdminUsersPage() {
   const supabase = createClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
 
   if (userError || !user) {
     return redirect('/auth/login');
@@ -24,15 +32,19 @@ export default async function AdminUsersPage() {
     return redirect('/');
   }
 
-  let users: AdminUser[] = [];
-  let error: string | null = null;
+  // Build the query to get users with their roles
+  const usersQuery = supabase
+    .from('users')
+    .select(
+      `
+      *,
+      roles(*)
+    `
+    )
+    .order('full_name', { ascending: true });
 
-  try {
-    users = await getAllUsers();
-  } catch (err: unknown) {
-    const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-    error = errorMessage;
-  }
+  // Execute with metadata capture
+  const usersQueryResult = await executeWithMetadata<UserWithRole>(usersQuery);
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4">
@@ -45,25 +57,15 @@ export default async function AdminUsersPage() {
         </div>
         <div className="flex gap-4">
           <Button asChild variant="outline">
-            <Link href="/admin">
-              ← Back to Admin
-            </Link>
+            <Link href="/admin">← Back to Admin</Link>
           </Button>
           <Button asChild>
-            <Link href="/admin/users/create">
-              Create User
-            </Link>
+            <Link href="/admin/users/create">Create User</Link>
           </Button>
         </div>
       </div>
 
-      {error ? (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-          Error loading users: {error}
-        </div>
-      ) : (
-        <UserManagementTable users={users} />
-      )}
+      <ManageUsersClient usersQuery={usersQueryResult} />
     </div>
   );
-} 
+}
