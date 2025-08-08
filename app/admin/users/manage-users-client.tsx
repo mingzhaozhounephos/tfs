@@ -1,39 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { PlusCircle, Search } from 'lucide-react';
-import { useSupabaseStore } from '@/utils/supabase/hooks';
-import { type QueryResult } from '@/utils/supabase/server';
-import { UserWithRole } from './page';
+import { useRouter } from 'next/navigation';
+import type { AdminUser } from '@/app/admin/users/actions';
 import { UserCard } from './user-card';
 import { UserFormModal } from './user-form-modal';
 import { AssignVideoModal } from './assign-video-modal';
 
 interface ManageUsersClientProps {
-  usersQuery: QueryResult<UserWithRole>;
+  users: AdminUser[];
 }
 
-export function ManageUsersClient({ usersQuery }: ManageUsersClientProps) {
+export function ManageUsersClient({ users }: ManageUsersClientProps) {
+  const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>('');
-
-  // Use the Supabase Store hook to make the query reactive
-  const {
-    data: users,
-    filters,
-    loading,
-    error,
-    updateFilters,
-    refetch
-  } = useSupabaseStore(usersQuery);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Handle search functionality
   const handleSearch = (searchTerm: string) => {
-    updateFilters({
-      full_name_ilike: searchTerm ? `%${searchTerm}%` : null
-    });
+    setSearchTerm(searchTerm);
   };
 
   // Handle video assignment
@@ -43,17 +32,27 @@ export function ManageUsersClient({ usersQuery }: ManageUsersClientProps) {
     setAssignModalOpen(true);
   };
 
-  // Sort users: active users first, then by name
-  const sortedUsers = users.slice().sort((a, b) => {
-    // First sort by active status
-    if (a.is_active !== b.is_active) {
-      return a.is_active ? -1 : 1;
-    }
-    // Then sort by name
-    const nameA = a.full_name || a.id;
-    const nameB = b.full_name || b.id;
-    return nameA.localeCompare(nameB);
-  });
+  // Filter and sort users: active users first, then by name
+  const sortedUsers = useMemo(() => {
+    const normalized = searchTerm.trim().toLowerCase();
+    const filtered = normalized
+      ? users.filter(
+          (u) =>
+            (u.full_name || '').toLowerCase().includes(normalized) ||
+            (u.email || '').toLowerCase().includes(normalized) ||
+            u.id.toLowerCase().includes(normalized)
+        )
+      : users;
+
+    return filtered.slice().sort((a, b) => {
+      if ((a.is_active ?? true) !== (b.is_active ?? true)) {
+        return (a.is_active ?? true) ? -1 : 1;
+      }
+      const nameA = a.full_name || a.id;
+      const nameB = b.full_name || b.id;
+      return nameA.localeCompare(nameB);
+    });
+  }, [users, searchTerm]);
 
   return (
     <div className="flex-1 p-8 bg-white min-h-screen">
@@ -91,20 +90,6 @@ export function ManageUsersClient({ usersQuery }: ManageUsersClientProps) {
         </div>
       </div>
 
-      {/* Loading State */}
-      {loading && (
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#EA384C]" />
-        </div>
-      )}
-
-      {/* Error State */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <p className="text-red-800">Error: {error}</p>
-        </div>
-      )}
-
       {/* Users Grid */}
       <div className="relative">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -115,13 +100,13 @@ export function ManageUsersClient({ usersQuery }: ManageUsersClientProps) {
               onAssignVideo={(userId) =>
                 handleAssignVideo(userId, user.full_name || user.id)
               }
-              onUserUpdated={refetch}
+              onUserUpdated={() => router.refresh()}
             />
           ))}
         </div>
 
         {/* Empty State */}
-        {!loading && sortedUsers.length === 0 && (
+        {sortedUsers.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-500 text-lg mb-2">No users found</div>
             <p className="text-gray-400">
@@ -135,7 +120,7 @@ export function ManageUsersClient({ usersQuery }: ManageUsersClientProps) {
       <UserFormModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSuccess={refetch}
+        onSuccess={() => router.refresh()}
       />
 
       <AssignVideoModal

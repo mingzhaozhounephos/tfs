@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { UserWithRole } from './page';
+import type { AdminUser } from '@/app/admin/users/actions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,7 +41,7 @@ import {
 import { Label } from '@/components/ui/label';
 
 interface UserCardProps {
-  user: UserWithRole;
+  user: AdminUser;
   onAssignVideo: (userId: string) => void;
   onUserUpdated: () => void;
 }
@@ -59,10 +59,11 @@ export function UserCard({
   const [isSendingInvite, setIsSendingInvite] = useState(false);
   const [isSendingResetPassword, setIsSendingResetPassword] = useState(false);
 
-  // Get the user's role (assuming single role for now)
-  const userRole = user.roles?.[0]?.role || 'driver';
+  // Get the user's role (single role)
+  const initialRole: 'admin' | 'driver' =
+    user.role === 'admin' ? 'admin' : 'driver';
   const [selectedRole, setSelectedRole] = useState<'admin' | 'driver'>(
-    userRole as 'admin' | 'driver'
+    initialRole
   );
 
   // Mock stats for now - in a real app, you'd fetch these
@@ -100,7 +101,7 @@ export function UserCard({
   };
 
   const handleUpdateRole = async () => {
-    if (selectedRole === userRole) {
+    if (selectedRole === initialRole) {
       setShowManageModal(false);
       return;
     }
@@ -139,7 +140,7 @@ export function UserCard({
       const response = await fetch('/api/invite-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, role: userRole })
+        body: JSON.stringify({ userId: user.id, role: initialRole })
       });
 
       if (!response.ok) {
@@ -208,7 +209,7 @@ export function UserCard({
             </div>
             <div className="flex items-center gap-1 text-xs text-gray-500">
               <Mail size={14} className="text-gray-400" />
-              {user.id}
+              {user.email}
             </div>
           </div>
         </div>
@@ -217,7 +218,7 @@ export function UserCard({
         <div className="flex justify-between items-center text-xs text-gray-700 mb-2 gap-2">
           <div className="flex flex-col gap-2 flex-1">
             <span className="inline-block font-semibold border rounded-full px-3 py-0.5 bg-white text-black text-xs text-center w-fit mb-1">
-              {userRole}
+              {initialRole}
             </span>
             <span className="flex items-center gap-1">
               <Video size={14} className="text-gray-400" />

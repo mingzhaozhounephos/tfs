@@ -1,14 +1,9 @@
-import { createClient, executeWithMetadata } from '@/utils/supabase/server';
+import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
-import { Tables } from '@/utils/supabase/types';
+import { getAllUsers, AdminUser } from '@/app/admin/users/actions';
 import { ManageUsersClient } from './manage-users-client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-
-// Define the expected shape of the data with roles
-export type UserWithRole = Tables<'users'> & {
-  roles: Tables<'roles'>[];
-};
 
 export default async function AdminUsersPage() {
   const supabase = createClient();
@@ -32,19 +27,16 @@ export default async function AdminUsersPage() {
     return redirect('/');
   }
 
-  // Build the query to get users with their roles
-  const usersQuery = supabase
-    .from('users')
-    .select(
-      `
-      *,
-      roles(*)
-    `
-    )
-    .order('full_name', { ascending: true });
+  let users: AdminUser[] = [];
+  let error: string | null = null;
 
-  // Execute with metadata capture
-  const usersQueryResult = await executeWithMetadata<UserWithRole>(usersQuery);
+  try {
+    users = await getAllUsers();
+  } catch (err: unknown) {
+    const errorMessage =
+      err instanceof Error ? err.message : 'Unknown error occurred';
+    error = errorMessage;
+  }
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4">
@@ -65,7 +57,13 @@ export default async function AdminUsersPage() {
         </div>
       </div>
 
-      <ManageUsersClient usersQuery={usersQueryResult} />
+      {error ? (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          Error loading users: {error}
+        </div>
+      ) : (
+        <ManageUsersClient users={users} />
+      )}
     </div>
   );
 }
