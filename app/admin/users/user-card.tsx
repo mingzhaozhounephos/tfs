@@ -40,16 +40,23 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
+interface UserStats {
+  numAssigned: number;
+  completion: number;
+}
+
 interface UserCardProps {
   user: AdminUser;
   onAssignVideo: (userId: string) => void;
   onUserUpdated: () => void;
+  stats: UserStats;
 }
 
 export function UserCard({
   user,
   onAssignVideo,
-  onUserUpdated
+  onUserUpdated,
+  stats
 }: UserCardProps) {
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -65,12 +72,6 @@ export function UserCard({
   const [selectedRole, setSelectedRole] = useState<'admin' | 'driver'>(
     initialRole
   );
-
-  // Mock stats for now - in a real app, you'd fetch these
-  const stats = {
-    numAssigned: 0,
-    completion: 0
-  };
 
   const handleDelete = async () => {
     if (!user) return;

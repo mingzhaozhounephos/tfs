@@ -8,11 +8,24 @@ import { UserCard } from './user-card';
 import { UserFormModal } from './user-form-modal';
 import { AssignVideoModal } from './assign-video-modal';
 
-interface ManageUsersClientProps {
-  users: AdminUser[];
+interface UserStats {
+  numAssigned: number;
+  completion: number;
 }
 
-export function ManageUsersClient({ users }: ManageUsersClientProps) {
+interface UserStatsMap {
+  [userId: string]: UserStats;
+}
+
+interface ManageUsersClientProps {
+  users: AdminUser[];
+  userStats: UserStatsMap;
+}
+
+export function ManageUsersClient({
+  users,
+  userStats
+}: ManageUsersClientProps) {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
@@ -101,6 +114,7 @@ export function ManageUsersClient({ users }: ManageUsersClientProps) {
                 handleAssignVideo(userId, user.full_name || user.id)
               }
               onUserUpdated={() => router.refresh()}
+              stats={userStats[user.id] || { numAssigned: 0, completion: 0 }}
             />
           ))}
         </div>
