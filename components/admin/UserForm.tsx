@@ -120,7 +120,7 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="role">System Role *</Label>
+        <Label htmlFor="role">Role *</Label>
         <Select
           value={formData.role}
           onValueChange={(value) =>
@@ -137,54 +137,57 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
         </Select>
       </div>
 
-      {mode === 'create' && allowOrganisations && organisations.length > 0 && (
-        <>
-          <div className="space-y-2">
-            <Label htmlFor="organisation_id">
-              Add to Organisation (Optional)
-            </Label>
-            <Select
-              value={formData.organisation_id}
-              onValueChange={(value) =>
-                setFormData({ ...formData, organisation_id: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select an organisation..." />
-              </SelectTrigger>
-              <SelectContent>
-                {organisations.map((org) => (
-                  <SelectItem key={org.id} value={org.id}>
-                    {org.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {formData.organisation_id && (
+      {false &&
+        mode === 'create' &&
+        allowOrganisations &&
+        organisations.length > 0 && (
+          <>
             <div className="space-y-2">
-              <Label htmlFor="organisation_role">Organisation Role</Label>
+              <Label htmlFor="organisation_id">
+                Add to Organisation (Optional)
+              </Label>
               <Select
-                value={formData.organisation_role}
+                value={formData.organisation_id}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, organisation_role: value })
+                  setFormData({ ...formData, organisation_id: value })
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a role" />
+                  <SelectValue placeholder="Select an organisation..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="member">Member</SelectItem>
-                  <SelectItem value="viewer">Viewer</SelectItem>
+                  {organisations.map((org) => (
+                    <SelectItem key={org.id} value={org.id}>
+                      {org.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-          )}
-        </>
-      )}
+
+            {formData.organisation_id && (
+              <div className="space-y-2">
+                <Label htmlFor="organisation_role">Organisation Role</Label>
+                <Select
+                  value={formData.organisation_role}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, organisation_role: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="member">Member</SelectItem>
+                    <SelectItem value="viewer">Viewer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </>
+        )}
 
       <div className="flex gap-4">
         <Button type="submit" disabled={isSubmitting}>
