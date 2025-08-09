@@ -16,7 +16,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { AdminUser } from '@/app/admin/users/actions';
-import { updateUser } from '@/app/admin/users/actions';
+import { updateUser, deleteUser } from '@/app/admin/users/actions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,17 +70,7 @@ export function UserCard({
     if (!user) return;
     setIsDeleting(true);
     try {
-      const response = await fetch('/api/delete-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id })
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to delete user');
-      }
-
+      await deleteUser(user.id);
       toast.success('User deleted successfully');
       onUserUpdated();
     } catch (error) {

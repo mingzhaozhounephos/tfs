@@ -413,7 +413,52 @@ export async function deleteUser(userId: string) {
   await verifyAdminAccess();
 
   try {
-    // Delete from auth
+    // Delete related records first (those without CASCADE)
+    // Delete roles
+    const { error: roleError } = await supabaseAdmin
+      .from('roles')
+      .delete()
+      .eq('user_id', userId);
+
+    if (roleError) {
+      console.warn('Warning deleting user roles:', roleError);
+      // Continue deletion even if roles deletion fails
+    }
+
+    // Delete organisation memberships
+    const { error: orgError } = await supabaseAdmin
+      .from('organisation_memberships')
+      .delete()
+      .eq('user_id', userId);
+
+    if (orgError) {
+      console.warn('Warning deleting organisation memberships:', orgError);
+      // Continue deletion even if org memberships deletion fails
+    }
+
+    // Delete user uploads
+    const { error: uploadsError } = await supabaseAdmin
+      .from('user_uploads')
+      .delete()
+      .eq('user_id', userId);
+
+    if (uploadsError) {
+      console.warn('Warning deleting user uploads:', uploadsError);
+      // Continue deletion even if uploads deletion fails
+    }
+
+    // Delete public user record
+    const { error: userError } = await supabaseAdmin
+      .from('users')
+      .delete()
+      .eq('id', userId);
+
+    if (userError) {
+      console.warn('Warning deleting public user record:', userError);
+      // Continue deletion even if public user deletion fails
+    }
+
+    // Delete from auth last (this will CASCADE delete users_videos and videos.admin_user)
     const { error: authError } =
       await supabaseAdmin.auth.admin.deleteUser(userId);
 
@@ -421,7 +466,6 @@ export async function deleteUser(userId: string) {
       throw new Error(`Failed to delete user: ${authError.message}`);
     }
 
-    // The database cascades will handle the rest via RLS policies
     revalidatePath('/admin/users');
     return { success: true };
   } catch (error: unknown) {
