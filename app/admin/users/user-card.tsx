@@ -31,14 +31,6 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
 
 interface UserStats {
   numAssigned: number;
@@ -329,52 +321,76 @@ export function UserCard({
       </Dialog>
 
       {/* Manage User Modal */}
-      <Dialog open={showManageModal} onOpenChange={setShowManageModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5 text-blue-600" />
-              Manage User
-            </DialogTitle>
-            <DialogDescription>
-              {user.full_name || 'Unnamed User'}
-              <br />
-              <span className="text-sm text-gray-500">{user.id}</span>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="role">Role</Label>
-              <Select
+      {showManageModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md flex flex-col items-center">
+            <div className="mb-4 text-center">
+              <Settings className="w-10 h-10 text-[#EA384C] mx-auto mb-2" />
+              <div className="text-lg font-semibold mb-2">Manage User</div>
+              <div className="text-gray-600">
+                {user.full_name || user.email}
+                <br />
+                <span className="text-sm text-gray-500">{user.email}</span>
+              </div>
+            </div>
+            <div className="w-full mb-4">
+              <label className="block text-sm font-medium mb-2">Role</label>
+              <select
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#EA384C]"
                 value={selectedRole}
-                onValueChange={(value) =>
-                  setSelectedRole(value as 'admin' | 'driver')
+                onChange={(e) =>
+                  setSelectedRole(e.target.value as 'admin' | 'driver')
                 }
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="driver">Driver</SelectItem>
-                  <SelectItem value="admin">Administrator</SelectItem>
-                </SelectContent>
-              </Select>
+                <option value="driver">Driver</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </div>
+            <div className="flex gap-2 w-full justify-center mt-2">
+              <button
+                className="px-4 py-2 rounded bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
+                onClick={() => setShowManageModal(false)}
+                disabled={isUpdating}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-[#EA384C] text-white font-medium hover:bg-[#EC4659] transition"
+                onClick={handleUpdateRole}
+                disabled={isUpdating}
+              >
+                {isUpdating ? (
+                  <span className="flex items-center gap-2 justify-center">
+                    <svg
+                      className="w-4 h-4 animate-spin"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                    Saving...
+                  </span>
+                ) : (
+                  'Save'
+                )}
+              </button>
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowManageModal(false)}
-              disabled={isUpdating}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleUpdateRole} disabled={isUpdating}>
-              {isUpdating ? 'Saving...' : 'Save'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </>
   );
 }
