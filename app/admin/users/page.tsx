@@ -5,6 +5,55 @@ import { ManageUsersClient } from './manage-users-client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
+// Types for user stats
+interface UserStats {
+  numAssigned: number;
+  completion: number;
+}
+
+interface UserStatsMap {
+  [userId: string]: UserStats;
+}
+
+// Function to fetch user stats from Supabase
+async function fetchUserStats(users: AdminUser[]): Promise<UserStatsMap> {
+  const supabase = createClient();
+
+  try {
+    const { data, error } = await supabase
+      .from('users_videos')
+      .select('user, is_completed');
+
+    if (error) {
+      console.error('Error fetching user stats:', error);
+      throw error;
+    }
+
+    // Calculate stats for each user
+    const stats: UserStatsMap = {};
+    users.forEach((user) => {
+      const userVideos = data.filter((uv) => uv.user === user.id);
+      const numAssigned = userVideos.length;
+      const completed = userVideos.filter((uv) => uv.is_completed).length;
+      const completion =
+        numAssigned === 0 ? 0 : Math.round((completed / numAssigned) * 100);
+
+      stats[user.id] = { numAssigned, completion };
+    });
+
+    console.log('User stats calculated:', stats);
+    return stats;
+  } catch (error) {
+    console.error('Error in fetchUserStats:', error);
+    // Return empty stats if there's an error
+    const emptyStats: UserStatsMap = {};
+    users.forEach((user) => {
+      emptyStats[user.id] = { numAssigned: 0, completion: 0 };
+    });
+    return emptyStats;
+  }
+}
+
 export default async function AdminUsersPage() {
   const supabase = createClient();
   const {
@@ -28,10 +77,12 @@ export default async function AdminUsersPage() {
   }
 
   let users: AdminUser[] = [];
+  let userStats: UserStatsMap = {};
   let error: string | null = null;
 
   try {
     users = await getAllUsers();
+    userStats = await fetchUserStats(users);
   } catch (err: unknown) {
     const errorMessage =
       err instanceof Error ? err.message : 'Unknown error occurred';
@@ -62,7 +113,7 @@ export default async function AdminUsersPage() {
           Error loading users: {error}
         </div>
       ) : (
-        <ManageUsersClient users={users} />
+        <ManageUsersClient users={users} userStats={userStats} />
       )}
     </div>
   );
