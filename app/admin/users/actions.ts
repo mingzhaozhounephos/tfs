@@ -371,15 +371,31 @@ export async function updateUser(userId: string, data: UpdateUserData) {
 
     // Update role
     if (data.role) {
-      const { error: roleError } = await supabaseAdmin.from('roles').upsert([
-        {
-          user_id: userId,
-          role: data.role as 'admin' | 'driver'
-        }
-      ]);
+      // First try to update existing role record
+      const { data: updateResult, error: updateError } = await supabaseAdmin
+        .from('roles')
+        .update({ role: data.role as 'admin' | 'driver' })
+        .eq('user_id', userId)
+        .select();
 
-      if (roleError) {
-        console.error('Role update error:', roleError);
+      // If no rows were updated (user doesn't have a role record yet), insert a new one
+      if (!updateError && (!updateResult || updateResult.length === 0)) {
+        const { error: insertError } = await supabaseAdmin
+          .from('roles')
+          .insert([
+            {
+              user_id: userId,
+              role: data.role as 'admin' | 'driver'
+            }
+          ]);
+
+        if (insertError) {
+          console.error('Role insert error:', insertError);
+          throw new Error(`Failed to insert role: ${insertError.message}`);
+        }
+      } else if (updateError) {
+        console.error('Role update error:', updateError);
+        throw new Error(`Failed to update role: ${updateError.message}`);
       }
     }
 

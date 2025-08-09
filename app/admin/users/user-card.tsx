@@ -16,6 +16,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { AdminUser } from '@/app/admin/users/actions';
+import { updateUser } from '@/app/admin/users/actions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -100,17 +101,9 @@ export function UserCard({
     }
 
     setIsUpdating(true);
-    try {
-      const response = await fetch('/api/update-user-role', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, role: selectedRole })
-      });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update user role');
-      }
+    try {
+      await updateUser(user.id, { role: selectedRole });
 
       toast.success('User role updated successfully');
       onUserUpdated();
