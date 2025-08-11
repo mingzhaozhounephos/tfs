@@ -3,18 +3,24 @@ import { redirect } from 'next/navigation';
 import { getAllUsers, AdminUser } from '@/app/admin/users/actions';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Mail, 
-  Calendar, 
-  Clock, 
-  Shield, 
-  User, 
-  CheckCircle, 
-  AlertCircle, 
+import {
+  Mail,
+  Calendar,
+  Clock,
+  Shield,
+  User,
+  CheckCircle,
+  AlertCircle,
   ArrowLeft,
   Edit,
   Settings,
@@ -28,10 +34,17 @@ interface UserDetailsPageProps {
   };
 }
 
-export default async function UserDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function UserDetailsPage({
+  params
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const supabase = createClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
 
   if (userError || !user) {
     return redirect('/auth/login');
@@ -54,22 +67,23 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ id
   try {
     users = await getAllUsers();
   } catch (err: unknown) {
-    const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+    const errorMessage =
+      err instanceof Error ? err.message : 'Unknown error occurred';
     error = errorMessage;
   }
 
-  const currentUser = users.find(u => u.id === id);
+  const currentUser = users.find((u) => u.id === id);
 
   if (!currentUser) {
     return (
       <div className="max-w-6xl mx-auto py-8 px-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">User Not Found</h1>
-          <p className="text-muted-foreground mb-6">The user you're looking for doesn't exist.</p>
+          <p className="text-muted-foreground mb-6">
+            The user you're looking for doesn't exist.
+          </p>
           <Button asChild>
-            <Link href="/admin/users">
-              Back to Users
-            </Link>
+            <Link href="/admin/users">Back to Users</Link>
           </Button>
         </div>
       </div>
@@ -89,9 +103,23 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ id
   const getRoleBadge = (role?: string) => {
     switch (role) {
       case 'admin':
-        return <Badge variant="secondary" className="bg-red-100 text-red-800 hover:bg-red-100">Admin</Badge>;
+        return (
+          <Badge
+            variant="secondary"
+            className="bg-red-100 text-red-800 hover:bg-red-100"
+          >
+            Admin
+          </Badge>
+        );
       default:
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-800 hover:bg-blue-100">User</Badge>;
+        return (
+          <Badge
+            variant="secondary"
+            className="bg-blue-100 text-blue-800 hover:bg-blue-100"
+          >
+            User
+          </Badge>
+        );
     }
   };
 
@@ -100,14 +128,24 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ id
       return (
         <div className="flex items-center gap-2">
           <CheckCircle className="w-4 h-4 text-green-600" />
-          <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">Confirmed</Badge>
+          <Badge
+            variant="secondary"
+            className="bg-green-100 text-green-800 hover:bg-green-100"
+          >
+            Confirmed
+          </Badge>
         </div>
       );
     } else {
       return (
         <div className="flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-yellow-600" />
-          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Pending</Badge>
+          <Badge
+            variant="secondary"
+            className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+          >
+            Pending
+          </Badge>
         </div>
       );
     }
@@ -123,17 +161,24 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ id
             Back to Users
           </Link>
         </Button>
-        
+
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
             <Avatar className="w-16 h-16">
-              <AvatarImage src={currentUser.avatar_url || ''} alt={currentUser.full_name || 'User'} />
+              <AvatarImage
+                src={currentUser.avatar_url || ''}
+                alt={currentUser.full_name || 'User'}
+              />
               <AvatarFallback className="text-lg bg-gradient-to-br from-blue-500 to-purple-600">
-                {currentUser.full_name?.charAt(0) || currentUser.email?.charAt(0) || '?'}
+                {currentUser.full_name?.charAt(0) ||
+                  currentUser.email?.charAt(0) ||
+                  '?'}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-3xl font-bold">{currentUser.full_name || 'Unnamed User'}</h1>
+              <h1 className="text-3xl font-bold">
+                {currentUser.full_name || 'Unnamed User'}
+              </h1>
               <p className="text-muted-foreground text-lg flex items-center gap-2">
                 <Mail className="w-5 h-5" />
                 {currentUser.email}
@@ -173,19 +218,29 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ id
               <CardContent className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Email Address
+                    </label>
                     <p className="text-sm">{currentUser.email}</p>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Full Name</label>
-                    <p className="text-sm">{currentUser.full_name || 'Not provided'}</p>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Full Name
+                    </label>
+                    <p className="text-sm">
+                      {currentUser.full_name || 'Not provided'}
+                    </p>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">System Role</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      System Role
+                    </label>
                     <div>{getRoleBadge(currentUser.role)}</div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Account Status</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Account Status
+                    </label>
                     <div>{getStatusBadge(currentUser.email_confirmed_at)}</div>
                   </div>
                 </div>
@@ -210,54 +265,67 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ id
                       <Calendar className="w-4 h-4" />
                       Account Created
                     </label>
-                    <p className="text-sm font-medium">{formatDate(currentUser.created_at)}</p>
+                    <p className="text-sm font-medium">
+                      {formatDate(currentUser.created_at)}
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                       <Clock className="w-4 h-4" />
                       Last Sign In
                     </label>
-                    <p className="text-sm font-medium">{formatDateTime(currentUser.last_sign_in_at)}</p>
+                    <p className="text-sm font-medium">
+                      {formatDateTime(currentUser.last_sign_in_at)}
+                    </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Organisations Card */}
-            {currentUser.organisations && currentUser.organisations.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="w-5 h-5" />
-                    Organisations
-                  </CardTitle>
-                  <CardDescription>
-                    Organisations this user is a member of
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {currentUser.organisations.map((org, index) => {
-                      const orgRoleClass = org.role === 'admin' 
-                        ? 'bg-blue-100 text-blue-800' 
-                        : 'bg-gray-100 text-gray-800';
-                      
-                      return (
-                        <Card key={index} className="border-dashed">
-                          <CardContent className="pt-4">
-                            <h3 className="font-semibold text-sm">{org.organisation?.name}</h3>
-                            <p className="text-xs text-muted-foreground">/{org.organisation?.slug}</p>
-                            <Badge variant="outline" className={`mt-2 text-xs ${orgRoleClass}`}>
-                              {org.role}
-                            </Badge>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            {currentUser.organisations &&
+              currentUser.organisations.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="w-5 h-5" />
+                      Organisations
+                    </CardTitle>
+                    <CardDescription>
+                      Organisations this user is a member of
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {currentUser.organisations.map((org, index) => {
+                        const orgRoleClass =
+                          org.role === 'admin'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-gray-100 text-gray-800';
+
+                        return (
+                          <Card key={index} className="border-dashed">
+                            <CardContent className="pt-4">
+                              <h3 className="font-semibold text-sm">
+                                {org.organisation?.name}
+                              </h3>
+                              <p className="text-xs text-muted-foreground">
+                                /{org.organisation?.slug}
+                              </p>
+                              <Badge
+                                variant="outline"
+                                className={`mt-2 text-xs ${orgRoleClass}`}
+                              >
+                                {org.role}
+                              </Badge>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
           </div>
 
           {/* Sidebar */}
@@ -269,9 +337,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ id
                   <Settings className="w-5 h-5" />
                   Quick Actions
                 </CardTitle>
-                <CardDescription>
-                  Common actions for this user
-                </CardDescription>
+                <CardDescription>Common actions for this user</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <UserActionButtons user={currentUser} variant="sidebar" />
@@ -291,18 +357,21 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ id
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Organisations</span>
+                  <span className="text-sm text-muted-foreground">
+                    Organisations
+                  </span>
                   <Badge variant="outline">
                     {currentUser.organisations?.length || 0}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Account Age</span>
+                  <span className="text-sm text-muted-foreground">
+                    Account Age
+                  </span>
                   <span className="text-sm font-medium">
-                    {currentUser.created_at ? 
-                      `${Math.floor((Date.now() - new Date(currentUser.created_at).getTime()) / (1000 * 60 * 60 * 24))} days` : 
-                      'Unknown'
-                    }
+                    {currentUser.created_at
+                      ? `${Math.floor((Date.now() - new Date(currentUser.created_at).getTime()) / (1000 * 60 * 60 * 24))} days`
+                      : 'Unknown'}
                   </span>
                 </div>
               </CardContent>
@@ -312,4 +381,4 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ id
       )}
     </div>
   );
-} 
+}
