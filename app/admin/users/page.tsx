@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { getAllUsers, AdminUser } from '@/app/admin/users/actions';
-import { ManageUsersClient } from './manage-users-client';
+import { ManageUsersClient } from './components/manage-users-client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
