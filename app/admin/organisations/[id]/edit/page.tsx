@@ -1,23 +1,33 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { getOrganisationSettings } from '@/utils/auth-helpers/settings';
-import { updateOrganisation, getAllOrganisations } from '@/app/admin/users/actions';
+import {
+  updateOrganisation,
+  getAllOrganisations
+} from '@/app/admin/users/actions';
 import Link from 'next/link';
 import { EditOrganisationForm } from '@/components/admin/EditOrganisationForm';
 import { notFound } from 'next/navigation';
 
-export default async function EditOrganisationPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditOrganisationPage({
+  params
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const { allowOrganisations } = getOrganisationSettings();
-  
+
   if (!allowOrganisations) {
     return redirect('/admin');
   }
 
   // Verify admin access
   const supabase = createClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
+
   if (userError || !user) {
     redirect('/auth/login');
   }
@@ -37,7 +47,7 @@ export default async function EditOrganisationPage({ params }: { params: Promise
   let organisation;
   try {
     const organisations = await getAllOrganisations();
-    organisation = organisations.find(org => org.id === id);
+    organisation = organisations.find((org) => org.id === id);
   } catch (error) {
     console.error('Error fetching organisation:', error);
   }
@@ -49,7 +59,7 @@ export default async function EditOrganisationPage({ params }: { params: Promise
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
       <div className="mb-8">
-        <Link 
+        <Link
           href="/admin/organisations"
           className="text-primary hover:text-primary/80 mb-4 inline-block"
         >
@@ -66,4 +76,4 @@ export default async function EditOrganisationPage({ params }: { params: Promise
       </div>
     </div>
   );
-} 
+}

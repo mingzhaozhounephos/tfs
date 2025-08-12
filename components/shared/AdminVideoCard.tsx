@@ -22,10 +22,10 @@ import { AssignVideoModal } from './AssignVideoModal';
 
 interface VideoWithStats {
   id: string;
-  title: string;
-  description: string;
-  youtube_url: string;
-  category: string;
+  title: string | null;
+  description: string | null;
+  youtube_url: string | null;
+  category: string | null;
   duration: string | null;
   created_at: string;
   num_of_assigned_users?: number;
@@ -90,6 +90,9 @@ export function AdminVideoCard({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Console log users prop
+  console.log('AdminVideoCard users:', users);
 
   const youtubeId = video.youtube_url ? getYouTubeId(video.youtube_url) : null;
   const thumbnailUrl = youtubeId ? getYouTubeThumbnail(youtubeId) : null;
@@ -276,7 +279,9 @@ export function AdminVideoCard({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-xl p-6 max-w-4xl w-full mx-4">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">{video.title}</h3>
+              <h3 className="text-lg font-semibold">
+                {video.title || 'Untitled'}
+              </h3>
               <Button
                 variant="ghost"
                 size="sm"
@@ -288,7 +293,7 @@ export function AdminVideoCard({
             <div className="aspect-video w-full">
               <iframe
                 src={`https://www.youtube.com/embed/${youtubeId}`}
-                title={video.title}
+                title={video.title || 'Video'}
                 className="w-full h-full rounded-lg"
                 allowFullScreen
               />
@@ -306,7 +311,8 @@ export function AdminVideoCard({
               <div className="text-lg font-semibold mb-2">Delete Video</div>
               <div className="text-gray-600">
                 Are you sure that you want to delete{' '}
-                <span className="font-bold">{video.title}</span>?
+                <span className="font-bold">{video.title || 'this video'}</span>
+                ?
               </div>
               {(() => {
                 const assignedUsers = Number(video.num_of_assigned_users);
@@ -345,7 +351,7 @@ export function AdminVideoCard({
           isOpen={assignModalOpen}
           onClose={() => setAssignModalOpen(false)}
           videoId={video.id}
-          videoTitle={video.title}
+          videoTitle={video.title || 'Untitled'}
           assignedCount={video.num_of_assigned_users || 0}
           users={users}
           onAssign={handleAssignVideo}
