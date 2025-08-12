@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { VideoFormModal } from '@/components/shared/VideoFormModal';
 import { AdminVideoCard } from '@/components/shared/AdminVideoCard';
 import { AssignVideoModal } from '@/components/shared/AssignVideoModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 import type { VideoWithStats, VideoFormData, User } from './page';
 
 interface VideosTableProps {
@@ -20,11 +20,10 @@ export default function VideosTable({
   userId,
   users
 }: VideosTableProps) {
+  const router = useRouter();
   const [displayData, setDisplayData] = useState<VideoWithStats[]>(videos);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string>('All Videos');
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingVideo, setEditingVideo] = useState<VideoWithStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [selectedVideoForAssign, setSelectedVideoForAssign] =
@@ -60,41 +59,6 @@ export default function VideosTable({
     }
   }, []);
 
-  // Handle video submission
-  const handleVideoSubmit = async (videoData: VideoFormData): Promise<void> => {
-    try {
-      const response = await fetch('/api/all-videos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(videoData)
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to save video');
-      }
-
-      toast.success(
-        editingVideo
-          ? 'Video updated successfully'
-          : 'Video created successfully'
-      );
-
-      // Refresh the data
-      await customRefetch();
-
-      // Close modal and reset editing state
-      setShowAddModal(false);
-      setEditingVideo(null);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'An unexpected error occurred';
-      toast.error(errorMessage);
-    }
-  };
-
-  // TODO: need to refresh the users->users_videos either before or after the assignment
   // Handle video assignment
   const handleAssignVideo = async (
     videoId: string,
@@ -172,23 +136,16 @@ export default function VideosTable({
   }, [displayData, searchQuery, selectedTag]);
 
   const handleEditVideo = (video: VideoWithStats) => {
-    setEditingVideo(video);
-    setShowAddModal(true);
+    router.push(`/admin/manage-videos/${video.id}/edit`);
   };
 
   const handleAddVideo = () => {
-    setEditingVideo(null);
-    setShowAddModal(true);
+    router.push('/admin/manage-videos/create');
   };
 
   const handleAssignToUsers = (video: VideoWithStats) => {
     setSelectedVideoForAssign(video);
     setAssignModalOpen(true);
-  };
-
-  const handleSuccess = () => {
-    customRefetch();
-    setShowAddModal(false);
   };
 
   const handleTagSelect = useCallback((tag: string) => {
@@ -283,33 +240,6 @@ export default function VideosTable({
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
         </div>
-      )}
-
-      {/* Add/Edit Video Modal */}
-      {showAddModal && (
-        <VideoFormModal
-          open={showAddModal}
-          onClose={() => {
-            setShowAddModal(false);
-            setEditingVideo(null);
-          }}
-          onSuccess={handleSuccess}
-          video={
-            editingVideo
-              ? {
-                  id: editingVideo.id,
-                  title: editingVideo.title,
-                  description: editingVideo.description,
-                  youtube_url: editingVideo.youtube_url,
-                  category: editingVideo.category,
-                  duration: editingVideo.duration || undefined,
-                  is_annual_renewal: editingVideo.is_annual_renewal || undefined
-                }
-              : undefined
-          }
-          adminUserId={editingVideo?.admin_user || userId}
-          onSubmit={handleVideoSubmit}
-        />
       )}
 
       {/* Assign Video Modal */}

@@ -4,6 +4,8 @@ import { createClient } from '@/utils/supabase/server';
 export async function GET(request: NextRequest) {
   try {
     const supabase = createClient();
+    const { searchParams } = new URL(request.url);
+    const videoId = searchParams.get('id');
 
     // Get user authentication
     const {
@@ -32,48 +34,96 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch videos with related data
-    const { data, error } = await supabase
-      .from('videos')
-      .select(
+    if (videoId) {
+      // Fetch single video by ID
+      const { data, error } = await supabase
+        .from('videos')
+        .select(
+          `
+          *,
+          users_videos(
+            user,
+            is_completed
+          )
         `
-        *,
-        users_videos(
-          user,
-          is_completed
         )
-      `
-      )
-      .eq('admin_user', user.id)
-      .order('created_at', { ascending: false })
-      .limit(50);
+        .eq('id', videoId)
+        .eq('admin_user', user.id)
+        .single();
 
-    if (error) {
-      throw error;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          return NextResponse.json(
+            { success: false, error: 'Video not found' },
+            { status: 404 }
+          );
+        }
+        throw error;
+      }
+
+      // Transform the single video data
+      const assignedUsers = data.users_videos?.length || 0;
+      const completedUsers =
+        data.users_videos?.filter((uv) => uv.is_completed)?.length || 0;
+      const completionRate =
+        assignedUsers > 0 ? (completedUsers / assignedUsers) * 100 : 0;
+
+      const transformedVideo = {
+        ...data,
+        title: data.title || '',
+        description: data.description || '',
+        youtube_url: data.youtube_url || '',
+        category: data.category || '',
+        admin_user: data.admin_user || '',
+        num_of_assigned_users: assignedUsers,
+        completion_rate: completionRate
+      };
+
+      return NextResponse.json({ success: true, data: transformedVideo });
+    } else {
+      // Fetch all videos with related data
+      const { data, error } = await supabase
+        .from('videos')
+        .select(
+          `
+          *,
+          users_videos(
+            user,
+            is_completed
+          )
+        `
+        )
+        .eq('admin_user', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        throw error;
+      }
+
+      // Transform the data
+      const transformedData =
+        data?.map((video) => {
+          const assignedUsers = video.users_videos?.length || 0;
+          const completedUsers =
+            video.users_videos?.filter((uv) => uv.is_completed)?.length || 0;
+          const completionRate =
+            assignedUsers > 0 ? (completedUsers / assignedUsers) * 100 : 0;
+
+          return {
+            ...video,
+            title: video.title || '',
+            description: video.description || '',
+            youtube_url: video.youtube_url || '',
+            category: video.category || '',
+            admin_user: video.admin_user || '',
+            num_of_assigned_users: assignedUsers,
+            completion_rate: completionRate
+          };
+        }) || [];
+
+      return NextResponse.json({ success: true, data: transformedData });
     }
-
-    // Transform the data
-    const transformedData =
-      data?.map((video) => {
-        const assignedUsers = video.users_videos?.length || 0;
-        const completedUsers =
-          video.users_videos?.filter((uv) => uv.is_completed)?.length || 0;
-        const completionRate =
-          assignedUsers > 0 ? (completedUsers / assignedUsers) * 100 : 0;
-
-        return {
-          ...video,
-          title: video.title || '',
-          description: video.description || '',
-          youtube_url: video.youtube_url || '',
-          category: video.category || '',
-          admin_user: video.admin_user || '',
-          num_of_assigned_users: assignedUsers,
-          completion_rate: completionRate
-        };
-      }) || [];
-
-    return NextResponse.json({ success: true, data: transformedData });
   } catch (err) {
     console.error('Error fetching videos:', err);
     return NextResponse.json(

@@ -14,10 +14,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 
-interface VideoFormModalProps {
-  open: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
+interface VideoFormProps {
   video?: {
     id?: string;
     title: string;
@@ -37,18 +34,17 @@ interface VideoFormModalProps {
     duration?: string;
     is_annual_renewal?: boolean;
   }) => Promise<void>;
+  onCancel: () => void;
 }
 
 const categories = ['van', 'truck', 'office'];
 
-export function VideoFormModal({
-  open,
-  onClose,
-  onSuccess,
+export function VideoForm({
   video,
   adminUserId,
-  onSubmit
-}: VideoFormModalProps) {
+  onSubmit,
+  onCancel
+}: VideoFormProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -75,7 +71,7 @@ export function VideoFormModal({
       setIsAnnualRenewal(false);
     }
     setError(null);
-  }, [video, open]);
+  }, [video]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -94,8 +90,6 @@ export function VideoFormModal({
 
     try {
       await onSubmit(videoData);
-      onSuccess();
-      onClose();
     } catch (err) {
       console.error('Error in form submission:', err);
       setError(err instanceof Error ? err.message : 'Failed to save video');
@@ -104,32 +98,15 @@ export function VideoFormModal({
     }
   }
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
-        <button
-          className="absolute top-4 right-4 text-gray-500 hover:text-black"
-          onClick={onClose}
-          aria-label="Close"
-        >
-          &times;
-        </button>
-        <h2 className="text-xl font-bold mb-1">
-          {video ? 'Edit Training Video' : 'Add New Training Video'}
-        </h2>
-        <p className="text-sm text-gray-600 mb-4">
-          {video
-            ? 'Edit the YouTube video in your training library.'
-            : 'Add a YouTube video to your training library.'}
-        </p>
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
-          </div>
-        )}
-        <form className="space-y-3" onSubmit={handleSubmit}>
+    <div className="w-full">
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+      <form className="space-y-3" onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="title">Title</Label>
             <Input
@@ -141,16 +118,6 @@ export function VideoFormModal({
             />
           </div>
           <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-              placeholder="Enter video description"
-            />
-          </div>
-          <div>
             <Label htmlFor="youtubeUrl">YouTube URL</Label>
             <Input
               id="youtubeUrl"
@@ -158,6 +125,16 @@ export function VideoFormModal({
               onChange={(e) => setYoutubeUrl(e.target.value)}
               required
               placeholder="https://www.youtube.com/watch?v=..."
+            />
+          </div>
+          <div className="md:col-span-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              placeholder="Enter video description"
             />
           </div>
           <div>
@@ -184,61 +161,63 @@ export function VideoFormModal({
               placeholder="10:00"
             />
           </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="isAnnualRenewal"
-              checked={isAnnualRenewal}
-              onCheckedChange={(checked) =>
-                setIsAnnualRenewal(checked as boolean)
-              }
-            />
-            <Label htmlFor="isAnnualRenewal" className="text-sm">
-              Requires annual renewal
-            </Label>
+          <div className="md:col-span-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isAnnualRenewal"
+                checked={isAnnualRenewal}
+                onCheckedChange={(checked) =>
+                  setIsAnnualRenewal(checked as boolean)
+                }
+              />
+              <Label htmlFor="isAnnualRenewal" className="text-sm">
+                Requires annual renewal
+              </Label>
+            </div>
           </div>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? (
-                <span className="flex items-center gap-2 justify-center">
-                  <svg
-                    className="w-4 h-4 animate-spin"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                    ></path>
-                  </svg>
-                  Processing
-                </span>
-              ) : video ? (
-                'Save Changes'
-              ) : (
-                'Add Video'
-              )}
-            </Button>
-          </div>
-        </form>
-      </div>
+        </div>
+        <div className="flex justify-end gap-2 mt-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <span className="flex items-center gap-2 justify-center">
+                <svg
+                  className="w-4 h-4 animate-spin"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+                Processing
+              </span>
+            ) : video ? (
+              'Save Changes'
+            ) : (
+              'Add Video'
+            )}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
