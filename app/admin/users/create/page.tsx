@@ -9,7 +9,10 @@ import { Tables } from '@/utils/supabase/types';
 
 export default async function CreateUserPage() {
   const supabase = createClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
 
   if (userError || !user) {
     return redirect('/auth/login');
@@ -27,7 +30,7 @@ export default async function CreateUserPage() {
   }
 
   const { allowOrganisations } = getOrganisationSettings();
-  
+
   let organisations: Tables<'organisations'>[] = [];
   if (allowOrganisations) {
     try {
@@ -38,24 +41,27 @@ export default async function CreateUserPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Create New User</h1>
-          <p className="text-gray-400">
-            Add a new user to the system
-          </p>
-        </div>
-        <Button asChild variant="outline">
-          <Link href="/admin/users">
-            ← Back to Users
-          </Link>
-        </Button>
+    <div className="flex-1 bg-white p-8 min-h-screen">
+      <div className="flex flex-col gap-2 items-start mb-2">
+        <img
+          src="/Logo.jpg"
+          alt="TFS Express Logistics"
+          className="h-8 w-auto mb-2"
+        />
       </div>
 
-      <div className="dark:bg-zinc-800 p-6 rounded-lg">
-        <CreateUserForm organisations={organisations} />
+      {/* Header */}
+      <div className="mb-6">
+        <Button asChild variant="outline" className="mb-4">
+          <Link href="/admin/users">← Back to Users</Link>
+        </Button>
+        <h2 className="text-xl font-bold mb-1">Create New User</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Add a new user to the system
+        </p>
       </div>
+
+      <CreateUserForm organisations={organisations} />
     </div>
   );
-} 
+}

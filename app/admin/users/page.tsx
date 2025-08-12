@@ -90,21 +90,33 @@ export default async function AdminUsersPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">User Management</h1>
-          <p className="text-gray-400">
-            Manage all user accounts and their permissions
-          </p>
-        </div>
-        <div className="flex gap-4">
-          <Button asChild variant="outline">
-            <Link href="/admin">← Back to Admin</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/admin/users/create">Create User</Link>
-          </Button>
+    <div className="flex-1 bg-white p-8 min-h-screen">
+      <div className="flex flex-col gap-2 items-start mb-2">
+        <img
+          src="/Logo.jpg"
+          alt="TFS Express Logistics"
+          className="h-8 w-auto mb-2"
+        />
+      </div>
+
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              User Management
+            </h1>
+            <p className="text-gray-600">
+              Manage all user accounts and their permissions
+            </p>
+          </div>
+          <div className="flex gap-4">
+            <Button asChild variant="outline">
+              <Link href="/admin">← Back to Admin</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/admin/users/create">Create User</Link>
+            </Button>
+          </div>
         </div>
       </div>
 

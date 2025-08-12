@@ -34,7 +34,7 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
   const [formData, setFormData] = useState({
     email: user?.email || '',
     full_name: user?.full_name || '',
-    role: (user?.role as 'admin' | 'user') || 'user',
+    role: (user?.role as 'admin' | 'driver') || 'driver',
     organisation_id: '',
     organisation_role: 'user'
   });
@@ -124,7 +124,7 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
         <Select
           value={formData.role}
           onValueChange={(value) =>
-            setFormData({ ...formData, role: value as 'admin' | 'user' })
+            setFormData({ ...formData, role: value as 'admin' | 'driver' })
           }
         >
           <SelectTrigger>
@@ -189,21 +189,20 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
           </>
         )}
 
-      <div className="flex gap-4">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting
-            ? 'Saving...'
-            : mode === 'create'
-              ? 'Create User'
-              : 'Update User'}
-        </Button>
-
+      <div className="flex justify-end gap-2 mt-6">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.push('/admin/users')}
         >
           Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting
+            ? 'Saving...'
+            : mode === 'create'
+              ? 'Create User'
+              : 'Update User'}
         </Button>
       </div>
     </form>

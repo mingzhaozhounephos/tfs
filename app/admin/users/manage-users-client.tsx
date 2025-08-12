@@ -1,11 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { PlusCircle, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { AdminUser } from '@/app/admin/users/actions';
 import { UserCard } from './user-card';
-import { UserFormModal } from './user-form-modal';
 import { AssignVideoModal } from './assign-video-modal';
 
 interface UserStats {
@@ -27,7 +26,6 @@ export function ManageUsersClient({
   userStats
 }: ManageUsersClientProps) {
   const router = useRouter();
-  const [modalOpen, setModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>('');
@@ -68,28 +66,7 @@ export function ManageUsersClient({
   }, [users, searchTerm]);
 
   return (
-    <div className="flex-1 p-8 bg-white min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col gap-2 items-start mb-2">
-        <img
-          src="/Logo.jpg"
-          alt="TFS Express Logistics"
-          className="h-8 w-auto mb-2"
-        />
-      </div>
-
-      {/* Title and Add User Button */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Manage Users</h1>
-        <button
-          onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 bg-[#EA384C] text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-[#EC4659] transition-colors"
-        >
-          <PlusCircle size={20} />
-          Add User
-        </button>
-      </div>
-
+    <div className="w-full">
       {/* Search Bar */}
       <div className="mb-6">
         <div className="relative">
@@ -130,13 +107,7 @@ export function ManageUsersClient({
         )}
       </div>
 
-      {/* Modals */}
-      <UserFormModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSuccess={() => router.refresh()}
-      />
-
+      {/* Assign Video Modal */}
       <AssignVideoModal
         isOpen={assignModalOpen}
         onClose={() => setAssignModalOpen(false)}
