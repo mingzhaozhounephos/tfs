@@ -32,7 +32,7 @@ export const navigationRoutes: RouteConfig[] = [
     requiresAuth: true
   },
   {
-    path: '/my-training-videos',
+    path: '/driver/my-training-videos',
     label: 'My Training Videos',
     icon: 'Video',
     requiredRole: 'driver',
