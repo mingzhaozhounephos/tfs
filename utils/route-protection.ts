@@ -11,9 +11,17 @@ export interface RouteConfig {
 
 export const navigationRoutes: RouteConfig[] = [
   {
-    path: '/',
-    label: 'Dashboard',
+    path: '/admin',
+    label: 'Admin Dashboard',
     icon: 'Home',
+    requiredRole: 'admin',
+    requiresAuth: true
+  },
+  {
+    path: '/driver',
+    label: 'Driver Dashboard',
+    icon: 'Home',
+    requiredRole: 'driver',
     requiresAuth: true
   },
   {
