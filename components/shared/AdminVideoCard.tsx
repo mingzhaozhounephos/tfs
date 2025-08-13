@@ -19,6 +19,8 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { AssignVideoModal } from './AssignVideoModal';
+import { getYouTubeId, getYouTubeThumbnail } from '@/lib/youtube';
+import { formatDate } from '@/lib/format-date';
 
 interface VideoWithStats {
   id: string;
@@ -47,33 +49,6 @@ interface AdminVideoCardProps {
   onDelete?: (videoId: string) => void;
   users?: User[];
   onAssignVideo?: (videoId: string, selectedUserIds: string[]) => Promise<void>;
-}
-
-/**
- * Extracts the YouTube video ID from a YouTube URL
- * @param url The YouTube URL (e.g., https://www.youtube.com/watch?v=VIDEO_ID)
- * @returns The YouTube video ID or null if not found
- */
-function getYouTubeId(url?: string): string | null {
-  if (!url) return null;
-  const match = url.match(
-    /(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/
-  );
-  return match ? match[1] : null;
-}
-
-/**
- * Generates the YouTube thumbnail URL for a video ID
- * @param videoId The YouTube video ID
- * @returns The URL for the maxresdefault thumbnail
- */
-function getYouTubeThumbnail(videoId: string): string {
-  return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-}
-
-// Helper function to format date
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString();
 }
 
 export function AdminVideoCard({
