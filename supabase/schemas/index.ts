@@ -37,7 +37,13 @@ export const users = pgTable(
       .default(sql`gen_random_uuid()`),
     fullName: text('full_name'),
     avatarUrl: text('avatar_url'),
-    isActive: boolean('is_active').notNull().default(true)
+    isActive: boolean('is_active').notNull().default(true),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull()
   },
   (t) => [
     crudPolicy({
