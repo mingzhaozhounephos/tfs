@@ -5,6 +5,8 @@ import { TrainingVideosGrid } from '@/components/shared/TrainingVideosGrid';
 import { TrainingVideoModal } from '@/components/shared/TrainingVideoModal';
 import { TrainingVideo } from '@/types';
 import { getYouTubeId } from '@/lib/youtube';
+import { useSupabaseStore } from '@/utils/supabase/hooks';
+import { QueryResult } from '@/utils/supabase/server';
 
 const FILTERS = [
   { label: 'All Videos', value: 'all' },
@@ -22,14 +24,24 @@ function isAnnualRenewalDue(video: TrainingVideo) {
 }
 
 interface MyTrainingVideosClientProps {
-  videos: TrainingVideo[];
+  trainingVideosQuery: QueryResult<TrainingVideo>;
   role: string;
 }
 
 export function MyTrainingVideosClient({
-  videos,
+  trainingVideosQuery,
   role
 }: MyTrainingVideosClientProps) {
+  // Hook automatically reconstructs server query + handles user filters
+  const {
+    data: videos,
+    filters,
+    loading,
+    error,
+    updateFilters,
+    refetch
+  } = useSupabaseStore(trainingVideosQuery);
+
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
@@ -73,13 +85,69 @@ export function MyTrainingVideosClient({
   function handleModalClose() {
     setShowModal(false);
     setModalVideo(null);
-    // Trigger page refresh to get updated data
+    // Use window.location.reload() for now since the complex query reconstruction isn't working
     window.location.reload();
   }
 
   // Handle refresh callback
   function handleRefresh() {
+    // Use window.location.reload() for now since the complex query reconstruction isn't working
     window.location.reload();
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex bg-white min-h-screen h-screen">
+        <main className="flex-1 p-8 h-screen overflow-y-auto relative">
+          <div className="flex flex-col gap-2 items-start mb-2">
+            <img
+              src="/Logo.jpg"
+              alt="TFS Express Logistics"
+              className="h-8 w-auto mb-2"
+            />
+          </div>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold">My Training Videos</h1>
+          </div>
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#EA384C]" />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex bg-white min-h-screen h-screen">
+        <main className="flex-1 p-8 h-screen overflow-y-auto relative">
+          <div className="flex flex-col gap-2 items-start mb-2">
+            <img
+              src="/Logo.jpg"
+              alt="TFS Express Logistics"
+              className="h-8 w-auto mb-2"
+            />
+          </div>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold">My Training Videos</h1>
+          </div>
+          <div className="text-center py-12">
+            <div className="text-red-500 text-lg mb-2">
+              Error loading videos
+            </div>
+            <p className="text-gray-400">{error}</p>
+            <button
+              onClick={refetch}
+              className="mt-4 px-4 py-2 bg-[#EA384C] text-white rounded-lg hover:bg-[#EC4659]"
+            >
+              Try Again
+            </button>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
