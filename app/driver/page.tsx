@@ -5,53 +5,6 @@ import { redirect } from 'next/navigation';
 import { DriverDashboardClient } from './driver-dashboard-client';
 import { TrainingVideo } from '@/types';
 
-// Helper function to fetch driver dashboard data
-async function fetchDriverDashboardData(userId: string) {
-  const supabase = createClient();
-
-  try {
-    // Get user's assigned videos with video details
-    const { data: assignments, error } = await supabase
-      .from('users_videos')
-      .select(
-        `
-        *,
-        video:videos(*)
-      `
-      )
-      .eq('user', userId)
-      .order('modified_date', { ascending: false });
-
-    if (error) throw error;
-
-    // Transform assignments to the expected video format
-    const videos: TrainingVideo[] = (assignments || [])
-      .filter((item) => item.video) // Filter out null videos
-      .map((item) => ({
-        id: item.video!.id,
-        title: item.video!.title || '',
-        category: item.video!.category || '',
-        description: item.video!.description || '',
-        created_at: item.video!.created_at,
-        duration: item.video!.duration || '',
-        youtube_url: item.video!.youtube_url || undefined,
-        assigned_date: item.assigned_date || undefined,
-        last_watched: item.last_watched || undefined,
-        renewal_due: undefined, // Not in the database
-        is_completed: item.is_completed || false,
-        modified_date: item.modified_date || undefined,
-        last_action: item.last_action || undefined,
-        is_annual_renewal: item.video!.is_annual_renewal || false,
-        completed_date: item.completed_date || undefined
-      }));
-
-    return videos;
-  } catch (error) {
-    console.error('Error fetching driver dashboard data:', error);
-    return [];
-  }
-}
-
 export default async function DriverPage() {
   try {
     const supabase = createClient();
@@ -75,16 +28,62 @@ export default async function DriverPage() {
       return redirect('/');
     }
 
-    // Fetch driver dashboard data
-    const videos = await fetchDriverDashboardData(user.id);
+    // Build the query using the official Supabase client
+    const driverDashboardQuery = supabase
+      .from('users_videos')
+      .select(
+        `
+        *,
+        video:videos(*)
+      `
+      )
+      .eq('user', user.id)
+      .order('modified_date', { ascending: false });
+
+    // Execute the query to get the data
+    const { data: assignments, error } = await driverDashboardQuery;
+
+    if (error) {
+      throw error;
+    }
+
+    // Transform the data to match the expected TrainingVideo interface
+    const videos: TrainingVideo[] = (assignments || [])
+      .filter((item: any) => item.video) // Filter out null videos
+      .map((item: any) => ({
+        id: item.video!.id,
+        title: item.video!.title || '',
+        category: item.video!.category || '',
+        description: item.video!.description || '',
+        created_at: item.video!.created_at,
+        duration: item.video!.duration || '',
+        youtube_url: item.video!.youtube_url || undefined,
+        assigned_date: item.assigned_date || undefined,
+        last_watched: item.last_watched || undefined,
+        renewal_due: undefined, // Not in the database
+        is_completed: item.is_completed || false,
+        modified_date: item.modified_date || undefined,
+        last_action: item.last_action || undefined,
+        is_annual_renewal: item.video!.is_annual_renewal || false,
+        completed_date: item.completed_date || undefined
+      }));
+
+    // Create a simple QueryResult structure for the client
+    const driverDashboardQueryResult = {
+      queryKey: `driver_dashboard_${user.id}`,
+      data: videos,
+      tableName: 'users_videos',
+      url: '',
+      searchParams: {}
+    };
 
     // Get user details
-    const userEmail = user.email;
+    const userEmail = user.email || '';
     const userFullName = user.user_metadata?.full_name;
 
     return (
       <DriverDashboardClient
-        videos={videos}
+        driverDashboardQuery={driverDashboardQueryResult}
         userEmail={userEmail}
         userFullName={userFullName}
       />

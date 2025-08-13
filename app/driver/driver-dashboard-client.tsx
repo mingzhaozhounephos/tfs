@@ -1,26 +1,36 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { TrainingVideosGrid } from '@/components/shared/TrainingVideosGrid';
 import { TrainingVideoModal } from '@/components/shared/TrainingVideoModal';
 import { getYouTubeId } from '@/lib/youtube';
 import { TrainingVideo } from '@/types';
+import { useSupabaseStore } from '@/utils/supabase/hooks';
+import { QueryResult } from '@/utils/supabase/server';
 
 interface DriverDashboardClientProps {
-  videos: TrainingVideo[];
+  driverDashboardQuery: QueryResult<TrainingVideo>;
   userEmail: string;
   userFullName?: string;
 }
 
 export function DriverDashboardClient({
-  videos,
+  driverDashboardQuery,
   userEmail,
   userFullName
 }: DriverDashboardClientProps) {
-  const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [modalVideo, setModalVideo] = useState<TrainingVideo | null>(null);
+
+  // Hook automatically reconstructs server query + handles user filters
+  const {
+    data: videos,
+    filters,
+    loading,
+    error,
+    updateFilters,
+    refetch
+  } = useSupabaseStore(driverDashboardQuery);
 
   // Progress calculation
   const assignedVideos = videos.length;
@@ -79,13 +89,79 @@ export function DriverDashboardClient({
   function handleModalClose() {
     setShowModal(false);
     setModalVideo(null);
-    // Trigger page refresh to get updated data
-    router.refresh();
+    // For now, use window.location.reload() as a fallback
+    // since the complex query reconstruction isn't working properly
+    window.location.reload();
   }
 
   // Handle refresh callback
   function handleRefresh() {
-    router.refresh();
+    // For now, use window.location.reload() as a fallback
+    // since the complex query reconstruction isn't working properly
+    window.location.reload();
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex bg-white min-h-screen h-screen">
+        <main className="flex-1 p-8 h-screen overflow-y-auto relative">
+          <div className="flex flex-col gap-2 items-center mb-6 w-full">
+            <div className="flex items-start justify-between w-full">
+              <img
+                src="/Logo.jpg"
+                alt="TFS Express Logistics"
+                className="h-8 w-auto mb-2"
+              />
+            </div>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold">Dashboard</h1>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#EA384C]" />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex bg-white min-h-screen h-screen">
+        <main className="flex-1 p-8 h-screen overflow-y-auto relative">
+          <div className="flex flex-col gap-2 items-center mb-6 w-full">
+            <div className="flex items-start justify-between w-full">
+              <img
+                src="/Logo.jpg"
+                alt="TFS Express Logistics"
+                className="h-8 w-auto mb-2"
+              />
+            </div>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold">Dashboard</h1>
+              </div>
+            </div>
+          </div>
+          <div className="text-center py-12">
+            <div className="text-red-500 text-lg mb-2">
+              Error loading dashboard
+            </div>
+            <p className="text-gray-400">{error}</p>
+            <button
+              onClick={refetch}
+              className="mt-4 px-4 py-2 bg-[#EA384C] text-white rounded-lg hover:bg-[#EC4659]"
+            >
+              Try Again
+            </button>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
