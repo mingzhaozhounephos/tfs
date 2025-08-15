@@ -1,30 +1,60 @@
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-  } from '@/components/ui/card'
-  
-  export default function Page() {
-    return (
-      <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-        <div className="w-full max-w-sm">
-          <div className="flex flex-col gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">Thank you for signing up!</CardTitle>
-                <CardDescription>Check your email to confirm</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  You&apos;ve successfully signed up. Please check your email to confirm your account
-                  before signing in.
+export default function Page() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#f7f8fa] px-2">
+      <div className="flex w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+        {/* Left Panel */}
+        <div className="hidden md:flex flex-col justify-between bg-[#EA384C] text-white w-1/2 p-10 relative">
+          <div>
+            <div className="flex items-center gap-3 mb-8">
+              <div className="bg-white text-[#EA384C] font-bold rounded-lg px-3 py-2 text-lg shadow-sm">
+                TFS
+              </div>
+              <span className="font-semibold text-xl">Express Logistics</span>
+            </div>
+            <h1 className="text-3xl font-bold leading-tight mb-2">
+              Welcome to the TFS
+              <br />
+              Driver Portal
+            </h1>
+            <p className="text-base text-white/80 mb-6">
+              Access training videos, documentation, and resources all in one
+              place.
+            </p>
+            <div className="bg-[#f75a68] bg-opacity-90 rounded-xl p-6 mt-8 shadow-inner">
+              <h2 className="text-lg font-semibold mb-2">
+                Why use Driver Hub?
+              </h2>
+              <ul className="text-sm space-y-2 list-disc list-inside text-white/80">
+                <li>Access all training materials in one place</li>
+                <li>Stay up-to-date with company policies</li>
+                <li>Complete required training at your own pace</li>
+                <li>Access resources on the go from any device</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        {/* Right Panel */}
+        <div className="flex flex-1 flex-col justify-center items-center bg-white py-12 px-6">
+          <div className="w-full max-w-md">
+            <div className="bg-white border border-gray-200 rounded-xl shadow p-8">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold mb-1 text-gray-900">
+                  Thank you for signing up!
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Check your email to confirm your account
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-700">
+                  You&apos;ve successfully signed up. Please check your email to
+                  confirm your account before signing in.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    )
-  }
+    </div>
+  );
+}
