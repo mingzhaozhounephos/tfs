@@ -74,6 +74,13 @@ export default function UserDetailsPage() {
         const userData = await userResponse.json();
         setUser(userData);
       }
+
+      // Refresh users data to get updated user information
+      const usersResponse = await fetch('/api/users');
+      if (usersResponse.ok) {
+        const usersData = await usersResponse.json();
+        setUsers(usersData);
+      }
     } catch (error) {
       console.error('Error refreshing data after assignment:', error);
     }
