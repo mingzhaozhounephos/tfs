@@ -197,7 +197,11 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-red-500 hover:bg-red-600 text-white"
+        >
           {isSubmitting
             ? 'Saving...'
             : mode === 'create'

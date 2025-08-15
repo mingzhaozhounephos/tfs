@@ -113,7 +113,7 @@ export default async function AdminUsersPage() {
             <Button asChild variant="outline">
               <Link href="/admin">← Back to Admin</Link>
             </Button>
-            <Button asChild>
+            <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
               <Link href="/admin/users/create">Create User</Link>
             </Button>
           </div>

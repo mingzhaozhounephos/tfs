@@ -185,7 +185,11 @@ export function VideoForm({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="bg-red-500 hover:bg-red-600 text-white"
+          >
             {isLoading ? (
               <span className="flex items-center gap-2 justify-center">
                 <svg
