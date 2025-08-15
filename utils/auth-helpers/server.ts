@@ -37,7 +37,7 @@ export async function SignIn(email: string, password: string) {
   const supabase = createClient();
   const { data: authData, error } = await supabase.auth.signInWithPassword({
     email,
-    password,
+    password
   });
 
   if (error) {
@@ -58,11 +58,33 @@ export async function SignIn(email: string, password: string) {
     } else if (userData && userData.is_active === false) {
       // Sign out the user immediately
       await supabase.auth.signOut();
-      throw new Error('Your account has been deactivated. Please contact an administrator.');
+      throw new Error(
+        'Your account has been deactivated. Please contact an administrator.'
+      );
+    }
+
+    // Check user role and redirect accordingly
+    const { data: roleData, error: roleError } = await supabase
+      .from('roles')
+      .select('role')
+      .eq('user_id', authData.user.id)
+      .single();
+
+    if (roleError) {
+      console.error('Error checking user role:', roleError);
+      // If we can't check the role, redirect to driver page as fallback
+      return '/driver';
+    }
+
+    // Redirect based on role
+    if (roleData?.role === 'admin') {
+      return '/admin';
+    } else {
+      return '/driver';
     }
   }
 
-  return '/';
+  return '/driver';
 }
 
 export async function updatePassword(formData: FormData) {
@@ -191,7 +213,8 @@ export async function requestPasswordReset(formData: FormData) {
 
   try {
     // First check if auth user exists - we need to use listUsers and filter by email
-    const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers();
+    const { data: authUsers, error: authError } =
+      await supabaseAdmin.auth.admin.listUsers();
 
     if (authError) {
       console.error('Error listing users:', authError);
@@ -200,7 +223,7 @@ export async function requestPasswordReset(formData: FormData) {
 
     let authUser = null;
     if (authUsers && authUsers.users) {
-      authUser = authUsers.users.find(user => user.email === email);
+      authUser = authUsers.users.find((user) => user.email === email);
     }
 
     if (authUser) {
@@ -225,7 +248,7 @@ export async function requestPasswordReset(formData: FormData) {
 
     // Send password reset email
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: getURL('/auth/callback?redirectTo=/auth/update-password'),
+      redirectTo: getURL('/auth/callback?redirectTo=/auth/update-password')
     });
 
     if (error) {
@@ -242,7 +265,8 @@ export async function requestPasswordReset(formData: FormData) {
       'Password reset instructions sent.'
     );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+    const errorMessage =
+      error instanceof Error ? error.message : 'An error occurred';
     return getErrorRedirect(
       '/auth/forgot-password',
       'Unable to send password reset email.',
