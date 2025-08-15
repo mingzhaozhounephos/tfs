@@ -16,7 +16,11 @@ import {
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { AdminUser } from '@/app/admin/users/actions';
-import { updateUser, deleteUser } from '@/app/admin/users/actions';
+import {
+  updateUser,
+  deleteUser,
+  sendPasswordResetOrInvite
+} from '@/app/admin/users/actions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -140,24 +144,12 @@ export function UserCard({
 
     setIsSendingResetPassword(true);
     try {
-      const response = await fetch('/api/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id })
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to send reset password email');
-      }
-
-      toast.success('Reset password email sent successfully!');
+      await sendPasswordResetOrInvite(user.id);
+      toast.success('Email sent successfully!');
     } catch (error) {
-      console.error('Error sending reset password email:', error);
+      console.error('Error sending email:', error);
       toast.error(
-        error instanceof Error
-          ? error.message
-          : 'Failed to send reset password email'
+        error instanceof Error ? error.message : 'Failed to send email'
       );
     } finally {
       setIsSendingResetPassword(false);
