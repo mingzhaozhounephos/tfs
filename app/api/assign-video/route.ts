@@ -102,7 +102,8 @@ export async function POST(request: NextRequest) {
           usersToAdd.map((userId: string) => ({
             video: videoId,
             user: userId,
-            is_completed: false
+            is_completed: false,
+            assigned_date: new Date().toISOString()
           }))
         );
 

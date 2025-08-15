@@ -147,6 +147,14 @@ export function AssignedVideosList({
                 }}
                 showEdit={false}
                 onAssignToUsers={() => handleAssignToUsers(userVideo)}
+                showEnhancedInfo={true}
+                enhancedData={{
+                  assigned_date: userVideo.assigned_date,
+                  last_action: userVideo.last_action,
+                  last_watched: userVideo.last_watched,
+                  completed_date: userVideo.completed_date,
+                  is_completed: userVideo.is_completed
+                }}
               />
             )
         )}

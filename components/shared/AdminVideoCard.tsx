@@ -49,6 +49,16 @@ interface AdminVideoCardProps {
   onDelete?: (videoId: string) => void;
   users?: User[];
   onAssignVideo?: (videoId: string, selectedUserIds: string[]) => Promise<void>;
+  // New props for enhanced display
+  showEnhancedInfo?: boolean;
+  // Enhanced data when showEnhancedInfo is true
+  enhancedData?: {
+    assigned_date?: string;
+    last_action?: string;
+    last_watched?: string;
+    completed_date?: string;
+    is_completed?: boolean;
+  };
 }
 
 export function AdminVideoCard({
@@ -58,7 +68,9 @@ export function AdminVideoCard({
   onAssignToUsers,
   onDelete,
   users = [],
-  onAssignVideo
+  onAssignVideo,
+  showEnhancedInfo = false,
+  enhancedData
 }: AdminVideoCardProps) {
   const [showModal, setShowModal] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
@@ -177,6 +189,25 @@ export function AdminVideoCard({
         >
           {video.category || 'Uncategorized'}
         </span>
+        {/* Completed Badge for enhanced info */}
+        {showEnhancedInfo && enhancedData?.is_completed && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-300">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-3 h-3 mr-0.5"
+            >
+              <polyline points="20,6 9,17 4,12" />
+            </svg>
+            Completed
+          </span>
+        )}
       </div>
       <div
         className="text-xs text-gray-600 mb-2 line-clamp-2"
@@ -221,26 +252,125 @@ export function AdminVideoCard({
           </>
         )}
       </div>
-      <div className="flex justify-between text-xs text-gray-500">
-        <span className="flex items-center gap-1">
-          <Calendar size={16} className="text-gray-400" />
-          {formatDate(video.created_at)}
-        </span>
-        <span className="flex items-center gap-1">
-          <Clock size={16} className="text-gray-400" />
-          {video.duration || 'N/A'}
-        </span>
-      </div>
-      <div className="flex justify-between text-xs text-gray-500">
-        <span className="flex items-center gap-1">
-          <Users size={16} className="text-gray-400" />
-          {video.num_of_assigned_users || 0} assigned
-        </span>
-        <span className="flex items-center gap-1">
-          <CheckCircle size={16} className="text-gray-400" />
-          {Math.round(video.completion_rate || 0)}% completed
-        </span>
-      </div>
+
+      {/* Enhanced Information Section */}
+      {showEnhancedInfo && enhancedData && (
+        <div className="flex flex-col gap-1 text-xs text-gray-500 mb-2">
+          {/* Assigned Date */}
+          {enhancedData.assigned_date && (
+            <div className="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-3 h-3 mr-1"
+              >
+                <path d="M8 2v4"></path>
+                <path d="M16 2v4"></path>
+                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                <path d="M3 10h18"></path>
+              </svg>
+              <span>Assigned: {formatDate(enhancedData.assigned_date)}</span>
+            </div>
+          )}
+
+          {/* Last Action */}
+          {enhancedData.last_action && (
+            <div className="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-3 h-3 mr-1"
+              >
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+              <span>Last Action: {enhancedData.last_action}</span>
+            </div>
+          )}
+
+          {/* Last Watched */}
+          {enhancedData.last_watched && (
+            <div className="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-3 h-3 mr-1"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Last Watched: {formatDate(enhancedData.last_watched)}</span>
+            </div>
+          )}
+
+          {/* Completed Date */}
+          {enhancedData.completed_date && (
+            <div className="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-3 h-3 mr-1"
+              >
+                <polyline points="20,6 9,17 4,12" />
+              </svg>
+              <span>Completed: {formatDate(enhancedData.completed_date)}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Standard Information Section - Only show when NOT using enhanced info */}
+      {!showEnhancedInfo && (
+        <>
+          <div className="flex justify-between text-xs text-gray-500">
+            <span className="flex items-center gap-1">
+              <Calendar size={16} className="text-gray-400" />
+              {formatDate(video.created_at)}
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock size={16} className="text-gray-400" />
+              {video.duration || 'N/A'}
+            </span>
+          </div>
+          <div className="flex justify-between text-xs text-gray-500">
+            <span className="flex items-center gap-1">
+              <Users size={16} className="text-gray-400" />
+              {video.num_of_assigned_users || 0} assigned
+            </span>
+            <span className="flex items-center gap-1">
+              <CheckCircle size={16} className="text-gray-400" />
+              {Math.round(video.completion_rate || 0)}% completed
+            </span>
+          </div>
+        </>
+      )}
 
       <Button
         className="mt-auto bg-red-500 text-white hover:bg-red-600"

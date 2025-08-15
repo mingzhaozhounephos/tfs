@@ -100,8 +100,7 @@ export async function POST(request: NextRequest) {
         user: userId,
         video: videoId,
         is_completed: false,
-        assigned_date: currentDate,
-        last_watched: currentDate
+        assigned_date: currentDate
       }));
 
       const { error: insertError } = await supabase
