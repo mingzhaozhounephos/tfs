@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server';
 import { createAdminClient } from '@/utils/supabase/admin';
 import VideosTable from './VideosTable';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 export type VideoWithStats = {
   id: string;
@@ -44,8 +45,15 @@ export type User = {
   }[];
 };
 
+// Server action to refresh the page data
+export async function refreshPageData() {
+  'use server';
+  revalidatePath('/admin/manage-videos');
+}
+
 export default async function ManageVideosPage() {
   const supabase = createClient();
+  const supabaseAdmin = createAdminClient();
 
   const {
     data: { user },
@@ -68,7 +76,7 @@ export default async function ManageVideosPage() {
   }
 
   // Fetch videos with related data directly using Supabase
-  const { data, error } = await supabase
+  const { data: videosData, error: videosError } = await supabase
     .from('videos')
     .select(
       `
@@ -83,51 +91,102 @@ export default async function ManageVideosPage() {
     .order('created_at', { ascending: false })
     .limit(50);
 
-  if (error) {
+  if (videosError) {
     throw new Error('Failed to fetch videos');
   }
 
-  // Transform the data (same logic as API)
-  const transformedData =
-    data?.map((video) => {
-      const assignedUsers = video.users_videos?.length || 0;
-      const completedUsers =
-        video.users_videos?.filter((uv) => uv.is_completed)?.length || 0;
-      const completionRate =
-        assignedUsers > 0 ? (completedUsers / assignedUsers) * 100 : 0;
+  // Transform the data to add computed fields
+  const transformedVideos = (videosData || []).map((video) => {
+    const assignedUsers = video.users_videos?.length || 0;
+    const completedUsers =
+      video.users_videos?.filter((uv) => uv.is_completed)?.length || 0;
+    const completionRate =
+      assignedUsers > 0 ? (completedUsers / assignedUsers) * 100 : 0;
+
+    return {
+      ...video,
+      title: video.title || '',
+      description: video.description || '',
+      youtube_url: video.youtube_url || '',
+      category: video.category || '',
+      admin_user: video.admin_user || '',
+      num_of_assigned_users: assignedUsers,
+      completion_rate: completionRate
+    };
+  });
+
+  // Create a QueryResult structure for videos
+  const videosQueryResult = {
+    queryKey: 'videos',
+    data: transformedVideos,
+    tableName: 'videos',
+    url: '',
+    searchParams: {}
+  };
+
+  // Fetch users for assignment modal using admin client
+  const { data: usersData, error: usersError } = await supabaseAdmin
+    .from('users')
+    .select(
+      `
+      id,
+      full_name,
+      is_active,
+      roles!inner(
+        role
+      ),
+      users_videos(
+        video,
+        is_completed
+      )
+    `
+    )
+    .eq('is_active', true)
+    .order('full_name');
+
+  if (usersError) {
+    console.error('Error fetching users:', usersError);
+  }
+
+  // Transform users data to include email and role
+  let transformedUsers: User[] = [];
+
+  if (usersData && usersData.length > 0) {
+    // Get all user IDs to fetch emails in batch
+    const userIds = usersData.map((user) => user.id);
+
+    // Batch fetch all auth users at once
+    const { data: authUsers, error: authError } =
+      await supabaseAdmin.auth.admin.listUsers();
+
+    if (authError) {
+      console.error('Error fetching auth users:', authError);
+    }
+
+    // Combine the data
+    transformedUsers = usersData.map((user) => {
+      const authUser = authUsers?.users?.find((au) => au.id === user.id);
+      const role = user.roles?.[0]?.role || 'driver';
 
       return {
-        ...video,
-        title: video.title || '',
-        description: video.description || '',
-        youtube_url: video.youtube_url || '',
-        category: video.category || '',
-        admin_user: video.admin_user || '',
-        num_of_assigned_users: assignedUsers,
-        completion_rate: completionRate
+        id: user.id,
+        full_name: user.full_name,
+        email: authUser?.email || '',
+        is_active: user.is_active,
+        role: role,
+        users_videos: user.users_videos || []
       };
-    }) || [];
-
-  // Fetch users for assignment modal using API endpoint for consistency
-  let users: User[] = [];
-
-  try {
-    const usersResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/users`,
-      {
-        cache: 'no-store'
-      }
-    );
-
-    if (usersResponse.ok) {
-      const usersData = await usersResponse.json();
-      users = usersData;
-    } else {
-      console.error('Failed to fetch users:', usersResponse.status);
-    }
-  } catch (error) {
-    console.error('Error fetching users:', error);
+    });
   }
+
+  // Create a QueryResult structure for users
+  const usersQueryResult = {
+    queryKey: 'users',
+    data: transformedUsers,
+    tableName: 'users',
+    url: '',
+    searchParams: {}
+  };
 
   return (
     <div className="flex-1 bg-white p-8 min-h-screen">
@@ -138,7 +197,12 @@ export default async function ManageVideosPage() {
           className="h-8 w-auto mb-2"
         />
       </div>
-      <VideosTable videos={transformedData} userId={user.id} users={users} />
+      <VideosTable
+        videosQuery={videosQueryResult}
+        usersQuery={usersQueryResult}
+        userId={user.id}
+        onRefresh={refreshPageData}
+      />
     </div>
   );
 }

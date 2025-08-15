@@ -65,7 +65,7 @@ export default function EditVideoPage() {
     setIsLoading(true);
     try {
       const response = await fetch('/api/all-videos', {
-        method: 'PUT',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...videoData, id: videoId })
       });

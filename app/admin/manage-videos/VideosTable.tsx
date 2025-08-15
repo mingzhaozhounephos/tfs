@@ -7,57 +7,59 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { useSupabaseStore } from '@/utils/supabase/hooks';
+import type { QueryResult } from '@/utils/supabase/server';
 import type { VideoWithStats, VideoFormData, User } from './page';
 
 interface VideosTableProps {
-  videos: VideoWithStats[];
+  videosQuery: QueryResult<VideoWithStats>;
+  usersQuery: QueryResult<User>;
   userId: string;
-  users: User[];
+  onRefresh: () => Promise<void>;
 }
 
 export default function VideosTable({
-  videos,
+  videosQuery,
+  usersQuery,
   userId,
-  users
+  onRefresh
 }: VideosTableProps) {
   const router = useRouter();
-  const [displayData, setDisplayData] = useState<VideoWithStats[]>(videos);
+
+  // Use Supabase store for videos data
+  const videosStore = useSupabaseStore(videosQuery);
+
+  // Use Supabase store for users data
+  const usersStore = useSupabaseStore(usersQuery);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string>('All Videos');
-  const [loading, setLoading] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [selectedVideoForAssign, setSelectedVideoForAssign] =
     useState<VideoWithStats | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Get unique categories for tab navigation
   const categories = useMemo(() => {
-    if (!displayData) return ['All Videos'];
+    if (!videosStore.data) return ['All Videos'];
     const uniqueCategories = Array.from(
-      new Set(displayData.map((video) => video.category))
+      new Set(videosStore.data.map((video) => video.category))
     );
     return ['All Videos', ...uniqueCategories.sort()];
-  }, [displayData]);
+  }, [videosStore.data]);
 
-  // Custom refetch function that calls the API
-  const customRefetch = useCallback(async () => {
+  // Handle page refresh
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
     try {
-      const response = await fetch('/api/all-videos', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch videos');
-      }
-
-      const result = await response.json();
-      if (result.success) {
-        setDisplayData(result.data);
-      }
+      await onRefresh();
     } catch (error) {
-      console.error('Error refetching videos:', error);
+      console.error('Error refreshing page:', error);
+      toast.error('Failed to refresh data');
+    } finally {
+      setIsRefreshing(false);
     }
-  }, []);
+  }, [onRefresh]);
 
   // Handle video assignment
   const handleAssignVideo = async (
@@ -79,8 +81,8 @@ export default function VideosTable({
 
       toast.success('Video assigned successfully');
 
-      // Refresh the data
-      await customRefetch();
+      // Refresh the page data
+      await handleRefresh();
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -107,8 +109,8 @@ export default function VideosTable({
 
       toast.success('Video deleted successfully');
 
-      // Refresh the data
-      await customRefetch();
+      // Refresh the page data
+      await handleRefresh();
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -120,9 +122,9 @@ export default function VideosTable({
 
   // Memoize filtered videos to prevent recalculation on every render
   const filteredVideos = useMemo(() => {
-    if (!displayData) return [];
+    if (!videosStore.data) return [];
 
-    return displayData.filter((video) => {
+    return videosStore.data.filter((video) => {
       const matchesSearch =
         video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         video.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -133,7 +135,7 @@ export default function VideosTable({
 
       return matchesSearch && matchesCategory;
     });
-  }, [displayData, searchQuery, selectedTag]);
+  }, [videosStore.data, searchQuery, selectedTag]);
 
   const handleEditVideo = (video: VideoWithStats) => {
     router.push(`/admin/manage-videos/${video.id}/edit`);
@@ -151,6 +153,17 @@ export default function VideosTable({
   const handleTagSelect = useCallback((tag: string) => {
     setSelectedTag(tag);
   }, []);
+
+  // Show error if there's an issue with videos data
+  if (videosStore.error) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <div className="text-red-500">
+          Error loading videos: {videosStore.error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -230,13 +243,13 @@ export default function VideosTable({
             showEdit={true}
             onAssignToUsers={() => handleAssignToUsers(video)}
             onDelete={handleDelete}
-            users={users}
+            users={usersStore.data || []}
             onAssignVideo={handleAssignVideo}
           />
         ))}
       </div>
 
-      {loading && (
+      {(videosStore.loading || isRefreshing) && (
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
         </div>
@@ -253,7 +266,7 @@ export default function VideosTable({
           videoId={selectedVideoForAssign.id}
           videoTitle={selectedVideoForAssign.title}
           assignedCount={selectedVideoForAssign.num_of_assigned_users || 0}
-          users={users}
+          users={usersStore.data || []}
           onAssign={handleAssignVideo}
         />
       )}
