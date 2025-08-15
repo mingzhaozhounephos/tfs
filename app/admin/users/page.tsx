@@ -109,14 +109,9 @@ export default async function AdminUsersPage() {
               Manage all user accounts and their permissions
             </p>
           </div>
-          <div className="flex gap-4">
-            <Button asChild variant="outline">
-              <Link href="/admin">← Back to Admin</Link>
-            </Button>
-            <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
-              <Link href="/admin/users/create">Create User</Link>
-            </Button>
-          </div>
+          <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
+            <Link href="/admin/users/create">Create User</Link>
+          </Button>
         </div>
       </div>
 

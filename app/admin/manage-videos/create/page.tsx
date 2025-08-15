@@ -62,14 +62,16 @@ export default function CreateVideoPage() {
       </div>
 
       {/* Header */}
-      <div className="mb-6">
-        <Button onClick={handleCancel} variant="outline" className="mb-4">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
+        <div>
+          <h2 className="text-xl font-bold mb-1">Add New Training Video</h2>
+          <p className="text-sm text-gray-600">
+            Add a YouTube video to your training library.
+          </p>
+        </div>
+        <Button onClick={handleCancel} variant="outline">
           ← Back to Videos
         </Button>
-        <h2 className="text-xl font-bold mb-1">Add New Training Video</h2>
-        <p className="text-sm text-gray-600 mb-4">
-          Add a YouTube video to your training library.
-        </p>
       </div>
 
       <VideoForm
