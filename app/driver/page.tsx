@@ -49,22 +49,24 @@ export default async function DriverPage() {
 
     // Transform the data to match the expected TrainingVideo interface
     const videos: TrainingVideo[] = (assignments || [])
-      .filter((item: any) => item.video) // Filter out null videos
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .filter((item: any) => item.video && typeof item.video === 'object') // Filter out null videos
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((item: any) => ({
-        id: item.video!.id,
-        title: item.video!.title || '',
-        category: item.video!.category || '',
-        description: item.video!.description || '',
-        created_at: item.video!.created_at,
-        duration: item.video!.duration || '',
-        youtube_url: item.video!.youtube_url || undefined,
+        id: item.video.id,
+        title: item.video.title || '',
+        category: item.video.category || '',
+        description: item.video.description || '',
+        created_at: item.video.created_at,
+        duration: item.video.duration || '',
+        youtube_url: item.video.youtube_url || undefined,
         assigned_date: item.assigned_date || undefined,
         last_watched: item.last_watched || undefined,
         renewal_due: undefined, // Not in the database
         is_completed: item.is_completed || false,
         modified_date: item.modified_date || undefined,
         last_action: item.last_action || undefined,
-        is_annual_renewal: item.video!.is_annual_renewal || false,
+        is_annual_renewal: item.video.is_annual_renewal || false,
         completed_date: item.completed_date || undefined
       }));
 

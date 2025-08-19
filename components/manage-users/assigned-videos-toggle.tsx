@@ -2,11 +2,31 @@
 
 import { useMemo } from 'react';
 
+interface Video {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  is_annual_renewal?: boolean;
+}
+
+interface UserVideo {
+  id: string;
+  user: string;
+  video: Video;
+  is_completed: boolean;
+  completed_at?: string;
+  assigned_date?: string;
+  last_watched?: string;
+  modified_date?: string;
+  last_action?: string;
+}
+
 interface AssignedVideosToggleProps {
   userId: string;
   onFilterChange: (filter: string) => void;
   filter: string;
-  videos: any[];
+  videos: UserVideo[];
 }
 
 const FILTERS = [

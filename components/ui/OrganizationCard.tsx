@@ -11,7 +11,10 @@ interface OrganisationCardProps {
   role: string;
 }
 
-export default function OrganisationCard({ organisation, role }: OrganisationCardProps) {
+export default function OrganisationCard({
+  organisation,
+  role
+}: OrganisationCardProps) {
   const isAdmin = role === 'admin';
 
   return (
@@ -26,8 +29,8 @@ export default function OrganisationCard({ organisation, role }: OrganisationCar
               /{organisation.slug}
             </p>
           </div>
-          <Badge 
-            variant={isAdmin ? 'navy' : 'secondary'}
+          <Badge
+            variant={isAdmin ? 'destructive' : 'secondary'}
             className="text-xs"
           >
             {role}
@@ -37,9 +40,7 @@ export default function OrganisationCard({ organisation, role }: OrganisationCar
 
       <div className="flex gap-2">
         <Button asChild variant="outline" className="flex-1">
-          <Link href={`/organisations/${organisation.id}`}>
-            View Details
-          </Link>
+          <Link href={`/organisations/${organisation.id}`}>View Details</Link>
         </Button>
         {isAdmin && (
           <Button asChild className="flex-1">
@@ -51,4 +52,4 @@ export default function OrganisationCard({ organisation, role }: OrganisationCar
       </div>
     </Card>
   );
-} 
+}

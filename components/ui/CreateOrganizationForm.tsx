@@ -40,7 +40,9 @@ export default function CreateOrganisationForm() {
       await createOrganisation({ name, slug });
       router.push(`/admin/organisations`);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to create organisation');
+      setError(
+        error instanceof Error ? error.message : 'Failed to create organisation'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -62,7 +64,9 @@ export default function CreateOrganisationForm() {
           required
           placeholder="Acme Corporation"
           onChange={(e) => {
-            const slugInput = document.getElementById('slug') as HTMLInputElement;
+            const slugInput = document.getElementById(
+              'slug'
+            ) as HTMLInputElement;
             if (slugInput) {
               slugInput.value = generateSlug(e.target.value);
             }
@@ -77,22 +81,18 @@ export default function CreateOrganisationForm() {
           id="slug"
           name="slug"
           required
-          pattern="[a-z0-9\-]+"
           pattern="[a-z0-9-]+"
           placeholder="acme-corporation"
         />
         <p className="text-sm text-muted-foreground">
-          This will be used in your organisation's URL. Only lowercase letters, numbers, and hyphens are allowed.
+          This will be used in your organisation's URL. Only lowercase letters,
+          numbers, and hyphens are allowed.
         </p>
       </div>
 
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full"
-      >
+      <Button type="submit" disabled={isSubmitting} className="w-full">
         {isSubmitting ? 'Creating...' : 'Create Organisation'}
       </Button>
     </form>
   );
-} 
+}

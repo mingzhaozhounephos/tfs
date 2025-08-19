@@ -1,5 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 
@@ -7,15 +14,14 @@ export default function DesignSystemPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto p-8 space-y-12">
-        
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold text-foreground">
             Corporate Design System
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            A professional design system inspired by modern corporate presentations
-            with navy blue and orange accent colors.
+            A professional design system inspired by modern corporate
+            presentations with navy blue and orange accent colors.
           </p>
         </div>
 
@@ -29,7 +35,9 @@ export default function DesignSystemPage() {
               <CardContent className="p-6">
                 <div className="w-full h-20 bg-brand-navy rounded-lg mb-4"></div>
                 <h3 className="font-semibold">Brand Navy</h3>
-                <p className="text-sm text-muted-foreground">Primary brand color</p>
+                <p className="text-sm text-muted-foreground">
+                  Primary brand color
+                </p>
               </CardContent>
             </Card>
             <Card>
@@ -43,7 +51,9 @@ export default function DesignSystemPage() {
               <CardContent className="p-6">
                 <div className="w-full h-20 bg-brand-blue rounded-lg mb-4"></div>
                 <h3 className="font-semibold">Brand Blue</h3>
-                <p className="text-sm text-muted-foreground">Secondary accent</p>
+                <p className="text-sm text-muted-foreground">
+                  Secondary accent
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -56,28 +66,60 @@ export default function DesignSystemPage() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">Primary</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Primary
+              </h3>
               <Button>Default</Button>
               <Button size="sm">Small</Button>
               <Button size="lg">Large</Button>
             </div>
             <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">Navy</h3>
-              <Button variant="navy">Navy</Button>
-              <Button variant="navy" size="sm">Small</Button>
-              <Button variant="navy" size="lg">Large</Button>
-            </div>
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">Orange</h3>
-              <Button variant="orange">Orange</Button>
-              <Button variant="orange" size="sm">Small</Button>
-              <Button variant="orange" size="lg">Large</Button>
-            </div>
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">Secondary</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Outline
+              </h3>
               <Button variant="outline">Outline</Button>
-              <Button variant="secondary">Secondary</Button>
+              <Button variant="outline" size="sm">
+                Small
+              </Button>
+              <Button variant="outline" size="lg">
+                Large
+              </Button>
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Ghost
+              </h3>
               <Button variant="ghost">Ghost</Button>
+              <Button variant="ghost" size="sm">
+                Small
+              </Button>
+              <Button variant="ghost" size="lg">
+                Large
+              </Button>
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Secondary
+              </h3>
+              <Button variant="secondary">Secondary</Button>
+              <Button variant="secondary" size="sm">
+                Small
+              </Button>
+              <Button variant="secondary" size="lg">
+                Large
+              </Button>
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Destructive
+              </h3>
+              <Button variant="destructive">Destructive</Button>
+              <Button variant="destructive" size="sm">
+                Small
+              </Button>
+              <Button variant="destructive" size="lg">
+                Large
+              </Button>
             </div>
           </div>
         </section>
@@ -89,10 +131,10 @@ export default function DesignSystemPage() {
           </h2>
           <div className="flex flex-wrap gap-3">
             <Badge>Default</Badge>
-            <Badge variant="navy">Navy</Badge>
-            <Badge variant="orange">Orange</Badge>
+            <Badge variant="default">Default</Badge>
             <Badge variant="secondary">Secondary</Badge>
-            <Badge variant="accent">Accent</Badge>
+            <Badge variant="destructive">Destructive</Badge>
+            <Badge variant="outline">Outline</Badge>
             <Badge variant="outline">Outline</Badge>
             <Badge variant="destructive">Destructive</Badge>
           </div>
@@ -108,17 +150,18 @@ export default function DesignSystemPage() {
               <CardHeader>
                 <CardTitle>Professional Card</CardTitle>
                 <CardDescription>
-                  A clean, professional card design perfect for corporate applications.
+                  A clean, professional card design perfect for corporate
+                  applications.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  This card demonstrates the new design system with proper spacing,
-                  typography, and color usage.
+                  This card demonstrates the new design system with proper
+                  spacing, typography, and color usage.
                 </p>
               </CardContent>
               <CardFooter>
-                <Button variant="navy" size="sm" className="w-full">
+                <Button variant="secondary" size="sm" className="w-full">
                   Take Action
                 </Button>
               </CardFooter>
@@ -128,7 +171,7 @@ export default function DesignSystemPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Featured Card</CardTitle>
-                  <Badge variant="orange">Featured</Badge>
+                  <Badge variant="destructive">Featured</Badge>
                 </div>
                 <CardDescription>
                   A highlighted card with accent border and orange badge.
@@ -138,11 +181,11 @@ export default function DesignSystemPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Status:</span>
-                    <Badge variant="navy">Active</Badge>
+                    <Badge variant="secondary">Active</Badge>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Priority:</span>
-                    <Badge variant="accent">High</Badge>
+                    <Badge variant="destructive">High</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -150,7 +193,7 @@ export default function DesignSystemPage() {
                 <Button variant="outline" size="sm" className="flex-1">
                   View
                 </Button>
-                <Button variant="orange" size="sm" className="flex-1">
+                <Button variant="destructive" size="sm" className="flex-1">
                   Edit
                 </Button>
               </CardFooter>
@@ -182,20 +225,27 @@ export default function DesignSystemPage() {
           <div className="space-y-4">
             <div>
               <h1 className="text-4xl font-bold text-foreground">Heading 1</h1>
-              <p className="text-muted-foreground">Large heading for main titles</p>
+              <p className="text-muted-foreground">
+                Large heading for main titles
+              </p>
             </div>
             <div>
-              <h2 className="text-3xl font-semibold text-foreground">Heading 2</h2>
+              <h2 className="text-3xl font-semibold text-foreground">
+                Heading 2
+              </h2>
               <p className="text-muted-foreground">Section headings</p>
             </div>
             <div>
-              <h3 className="text-2xl font-medium text-foreground">Heading 3</h3>
+              <h3 className="text-2xl font-medium text-foreground">
+                Heading 3
+              </h3>
               <p className="text-muted-foreground">Subsection headings</p>
             </div>
             <div>
               <p className="text-foreground">
-                Body text with proper contrast and readability. This demonstrates
-                the main content typography with good line height and spacing.
+                Body text with proper contrast and readability. This
+                demonstrates the main content typography with good line height
+                and spacing.
               </p>
             </div>
             <div>
@@ -221,15 +271,21 @@ export default function DesignSystemPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Badge variant="navy" className="text-xs">+</Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    +
+                  </Badge>
                   <span className="text-sm">Proprietary Systems</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="navy" className="text-xs">+</Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    +
+                  </Badge>
                   <span className="text-sm">Customer Service Reputation</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="navy" className="text-xs">+</Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    +
+                  </Badge>
                   <span className="text-sm">In-house IT Capability</span>
                 </div>
               </CardContent>
@@ -244,15 +300,21 @@ export default function DesignSystemPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Badge variant="orange" className="text-xs">→</Badge>
+                  <Badge variant="destructive" className="text-xs">
+                    →
+                  </Badge>
                   <span className="text-sm">More Targeted Approach</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="orange" className="text-xs">→</Badge>
+                  <Badge variant="destructive" className="text-xs">
+                    →
+                  </Badge>
                   <span className="text-sm">System Integration</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="orange" className="text-xs">→</Badge>
+                  <Badge variant="destructive" className="text-xs">
+                    →
+                  </Badge>
                   <span className="text-sm">Process Automation</span>
                 </div>
               </CardContent>
@@ -262,4 +324,4 @@ export default function DesignSystemPage() {
       </div>
     </div>
   );
-} 
+}

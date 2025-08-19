@@ -17,7 +17,7 @@ type NavlinksProps = {
     email?: string;
   } | null;
   isAdmin?: boolean;
-}
+};
 
 export default function Navlinks({ user, isAdmin }: NavlinksProps) {
   const router = getRedirectMethod() === 'client' ? useRouter() : null;
@@ -30,22 +30,28 @@ export default function Navlinks({ user, isAdmin }: NavlinksProps) {
           <Logo />
         </Link>
         <nav className="ml-6 space-x-1 lg:block">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className={cn(s.link, pathname === '/' && s.linkActive)}
           >
             Home
           </Link>
-          <Link 
-            href="/design-system" 
-            className={cn(s.link, pathname === '/design-system' && s.linkActive)}
+          <Link
+            href="/design-system"
+            className={cn(
+              s.link,
+              pathname === '/design-system' && s.linkActive
+            )}
           >
             Design System
           </Link>
           {user && isAdmin && (
-            <Link 
-              href="/admin" 
-              className={cn(s.link, pathname.startsWith('/admin') && s.linkActive)}
+            <Link
+              href="/admin"
+              className={cn(
+                s.link,
+                pathname.startsWith('/admin') && s.linkActive
+              )}
             >
               Admin Panel
             </Link>
@@ -69,7 +75,7 @@ export default function Navlinks({ user, isAdmin }: NavlinksProps) {
               </Button>
             </Link>
             <Link href="/auth/sign-up">
-              <Button variant="orange" size="sm">
+              <Button variant="destructive" size="sm">
                 Get Started
               </Button>
             </Link>

@@ -1,6 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/utils/supabase/admin';
 
+interface Video {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  // Add other video properties as needed
+}
+
+interface UserVideo {
+  id: string;
+  user: string;
+  video: string | Video;
+  is_completed: boolean;
+  completed_at?: string;
+  // Add other user_video properties as needed
+}
+
+interface AssignmentCount {
+  video: string | null;
+  is_completed: boolean | null;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -33,7 +55,7 @@ export async function GET(
     if (userVideos && userVideos.length > 0) {
       const videoIds = userVideos
         .filter((uv) => uv.video && typeof uv.video === 'object')
-        .map((uv) => (uv.video as any).id);
+        .map((uv) => (uv.video as Video).id);
 
       if (videoIds.length > 0) {
         // Get assignment counts for each video
@@ -55,11 +77,12 @@ export async function GET(
 
           const videoAssignments =
             assignmentCounts?.filter(
-              (ac) => ac.video === (userVideo.video as any).id
+              (ac: AssignmentCount) =>
+                ac.video && ac.video === (userVideo.video as Video).id
             ) || [];
           const numAssigned = videoAssignments.length;
           const completed = videoAssignments.filter(
-            (ac) => ac.is_completed
+            (ac: AssignmentCount) => ac.is_completed
           ).length;
           const completionRate =
             numAssigned > 0 ? Math.round((completed / numAssigned) * 100) : 0;
@@ -67,7 +90,7 @@ export async function GET(
           return {
             ...userVideo,
             video: {
-              ...(userVideo.video as any),
+              ...(userVideo.video as Video),
               num_of_assigned_users: numAssigned,
               completion_rate: completionRate
             }

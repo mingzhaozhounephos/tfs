@@ -1,9 +1,37 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+// YouTube API types
+interface YouTubePlayer {
+  Player: new (
+    elementId: string,
+    config: {
+      height: string;
+      width: string;
+      videoId: string;
+      playerVars: { autoplay: number };
+      events: {
+        onStateChange: (event: YouTubePlayerStateChangeEvent) => void;
+      };
+    }
+  ) => YouTubePlayerInstance;
+  PlayerState: {
+    ENDED: number;
+  };
+}
+
+interface YouTubePlayerInstance {
+  // Add methods as needed
+  destroy: () => void;
+}
+
+interface YouTubePlayerStateChangeEvent {
+  data: number;
+}
+
 // Extend the Window interface for YT and onYouTubeIframeAPIReady
 declare global {
   interface Window {
-    YT: any;
+    YT: YouTubePlayer;
     onYouTubeIframeAPIReady: (() => void) | undefined;
   }
 }
@@ -25,7 +53,7 @@ export function TrainingVideoModal({
   videoId,
   onRefresh
 }: TrainingVideoModalProps) {
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<YouTubePlayerInstance | null>(null);
   const [videoEnded, setVideoEnded] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,7 +111,7 @@ export function TrainingVideoModal({
         videoId: youtubeId,
         playerVars: { autoplay: 1 },
         events: {
-          onStateChange: async (event: any) => {
+          onStateChange: async (event: YouTubePlayerStateChangeEvent) => {
             if (event.data === window.YT.PlayerState.ENDED) {
               setVideoEnded(true);
             }
@@ -104,7 +132,6 @@ export function TrainingVideoModal({
       }
       window.onYouTubeIframeAPIReady = undefined;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, youtubeId, videoId]);
 
   if (!open || !youtubeId) return null;

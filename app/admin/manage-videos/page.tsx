@@ -45,15 +45,15 @@ export type User = {
   }[];
 };
 
-// Server action to refresh the page data
-export async function refreshPageData() {
-  'use server';
-  revalidatePath('/admin/manage-videos');
-}
-
 export default async function ManageVideosPage() {
   const supabase = createClient();
   const supabaseAdmin = createAdminClient();
+
+  // Server action to refresh the page data
+  async function refreshPageData() {
+    'use server';
+    revalidatePath('/admin/manage-videos');
+  }
 
   const {
     data: { user },

@@ -4,13 +4,46 @@ import { useMemo, useState } from 'react';
 import { AdminVideoCard } from '@/components/shared/AdminVideoCard';
 import { AssignVideoModal } from '@/components/shared/AssignVideoModal';
 
+interface Video {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  created_at?: string;
+  duration?: string;
+  youtube_url?: string;
+  is_annual_renewal?: boolean;
+  num_of_assigned_users?: number;
+  completion_rate?: number;
+}
+
+interface UserVideo {
+  id: string;
+  user: string;
+  video: Video;
+  is_completed: boolean;
+  completed_at?: string;
+  completed_date?: string;
+  assigned_date?: string;
+  last_watched?: string;
+  modified_date?: string;
+  last_action?: string;
+}
+
+interface User {
+  id: string;
+  email: string;
+  full_name: string;
+  role: string;
+  // Add other user properties as needed
+}
+
 interface AssignedVideosListProps {
   userId: string;
   filter?: string;
-  videos: any[];
+  videos: UserVideo[];
   loading?: boolean;
-  users?: any[];
-  // allVideos?: any[];
+  users?: User[];
   onAssignVideo?: (videoId: string, selectedUserIds: string[]) => Promise<void>;
 }
 
@@ -20,14 +53,13 @@ export function AssignedVideosList({
   videos,
   loading = false,
   users = [],
-  // allVideos = [],
   onAssignVideo
 }: AssignedVideosListProps) {
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [selectedVideoForAssign, setSelectedVideoForAssign] =
-    useState<any>(null);
+    useState<UserVideo | null>(null);
 
-  const handleAssignToUsers = (userVideo: any) => {
+  const handleAssignToUsers = (userVideo: UserVideo) => {
     console.log('userVideo: ', userVideo);
     setSelectedVideoForAssign(userVideo);
     setAssignModalOpen(true);
@@ -140,7 +172,7 @@ export function AssignedVideosList({
                   created_at:
                     userVideo.video.created_at || new Date().toISOString(),
                   duration: userVideo.video.duration || '-',
-                  youtube_url: userVideo.video.youtube_url,
+                  youtube_url: userVideo.video.youtube_url || null,
                   num_of_assigned_users:
                     userVideo.video.num_of_assigned_users || 0,
                   completion_rate: userVideo.video.completion_rate || 0

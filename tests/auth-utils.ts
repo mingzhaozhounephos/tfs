@@ -28,14 +28,14 @@ export async function signIn(
 ): Promise<void> {
   // Navigate to sign-in page
   await page.goto('/auth/login');
-  
+
   // Fill in credentials
   await page.getByLabel(/email/i).fill(email);
   await page.getByLabel(/password/i).fill(password);
-  
+
   // Submit the form
   await page.getByRole('button', { name: /login/i }).click();
-  
+
   // Wait for navigation to complete (redirect to home page)
   await page.waitForURL('/');
 }
@@ -48,11 +48,11 @@ export async function signIn(
 export async function signOut(page: Page): Promise<void> {
   // Navigate to home page first
   await page.goto('/');
-  
+
   // Look for sign out button/link in navigation
   const signOutButton = page.getByRole('button', { name: /sign out|logout/i });
   const signOutLink = page.getByRole('link', { name: /sign out|logout/i });
-  
+
   // Try to find and click sign out button or link
   if (await signOutButton.isVisible()) {
     await signOutButton.click();
@@ -62,7 +62,7 @@ export async function signOut(page: Page): Promise<void> {
     // If no sign out button/link found, clear cookies to simulate sign out
     await page.context().clearCookies();
   }
-  
+
   // Wait for sign out to complete (might redirect to home or login page)
   await page.waitForTimeout(1000); // Give time for navigation
 }
@@ -75,11 +75,11 @@ export async function signOut(page: Page): Promise<void> {
 export async function verifyAuthenticated(page: Page): Promise<void> {
   // Navigate to home page and check for authenticated user indicators
   await page.goto('/');
-  
+
   // Check for authenticated user indicators (adjust based on your app's UI)
   // This could be a user menu, profile picture, or other authenticated-only elements
   await expect(page).toHaveURL('/');
-  
+
   // If your app has specific authenticated UI elements, check for them here
   // For example: await expect(page.getByRole('button', { name: /profile|account/i })).toBeVisible();
 }
@@ -92,10 +92,10 @@ export async function verifyAuthenticated(page: Page): Promise<void> {
 export async function verifyNotAuthenticated(page: Page): Promise<void> {
   // Navigate to home page
   await page.goto('/');
-  
+
   // Check that we're on the home page and not redirected to login
   await expect(page).toHaveURL('/');
-  
+
   // If your app has sign-in links for non-authenticated users, check for them
   // For example: await expect(page.getByRole('link', { name: /sign in|login/i })).toBeVisible();
 }
@@ -123,13 +123,13 @@ export async function requestPasswordReset(
 ): Promise<void> {
   // Navigate to forgot password page
   await page.goto('/auth/forgot-password');
-  
+
   // Fill in email
   await page.getByLabel(/email/i).fill(email);
-  
+
   // Submit the form
   await page.getByRole('button', { name: /send reset email/i }).click();
-  
+
   // Wait for success message
   await expect(page.getByText(/check your email/i)).toBeVisible();
 }
@@ -139,12 +139,16 @@ export async function requestPasswordReset(
  */
 export async function setupTestUsers(): Promise<void> {
   const adminClient = createAdminClient();
-  
+
   try {
     // Check if users already exist and delete them first
     const { data: existingUsers } = await adminClient.auth.admin.listUsers();
-    const existingAdmin = existingUsers.users.find(u => u.email === ADMIN_USER.email);
-    const existingRegular = existingUsers.users.find(u => u.email === REGULAR_USER.email);
+    const existingAdmin = existingUsers.users.find(
+      (u) => u.email === ADMIN_USER.email
+    );
+    const existingRegular = existingUsers.users.find(
+      (u) => u.email === REGULAR_USER.email
+    );
 
     // Track whether we need to create new users
     let needCreateAdmin = true;
@@ -155,7 +159,10 @@ export async function setupTestUsers(): Promise<void> {
       try {
         await adminClient.auth.admin.deleteUser(existingAdmin.id);
       } catch (error) {
-        console.warn(`⚠️ Warning deleting existing admin user, trying password reset:`, error);
+        console.warn(
+          `⚠️ Warning deleting existing admin user, trying password reset:`,
+          error
+        );
         // If deletion fails, try to reset password to original
         try {
           await adminClient.auth.admin.updateUserById(existingAdmin.id, {
@@ -172,7 +179,10 @@ export async function setupTestUsers(): Promise<void> {
       try {
         await adminClient.auth.admin.deleteUser(existingRegular.id);
       } catch (error) {
-        console.warn(`⚠️ Warning deleting existing regular user, trying password reset:`, error);
+        console.warn(
+          `⚠️ Warning deleting existing regular user, trying password reset:`,
+          error
+        );
         // If deletion fails, try to reset password to original
         try {
           await adminClient.auth.admin.updateUserById(existingRegular.id, {
@@ -224,14 +234,12 @@ export async function setupTestUsers(): Promise<void> {
         .from('roles')
         .delete()
         .eq('user_id', adminUserData.user.id);
-      
+
       // Now insert the admin role
-      await adminClient
-        .from('roles')
-        .insert({ 
-          user_id: adminUserData.user.id, 
-          role: 'admin' 
-        });
+      await adminClient.from('roles').insert({
+        user_id: adminUserData.user.id,
+        role: 'admin'
+      });
     }
 
     // Clean up existing roles and set new ones for regular user
@@ -241,14 +249,12 @@ export async function setupTestUsers(): Promise<void> {
         .from('roles')
         .delete()
         .eq('user_id', regularUserData.user.id);
-      
+
       // Now insert the user role
-      await adminClient
-        .from('roles')
-        .insert({ 
-          user_id: regularUserData.user.id, 
-          role: 'user' 
-        });
+      await adminClient.from('roles').insert({
+        user_id: regularUserData.user.id,
+        role: 'driver'
+      });
     }
 
     console.log('✅ Test users created successfully');
@@ -263,12 +269,14 @@ export async function setupTestUsers(): Promise<void> {
  */
 export async function teardownTestUsers(): Promise<void> {
   const adminClient = createAdminClient();
-  
+
   try {
     // Get user data to clean up roles first
     const { data: allUsers } = await adminClient.auth.admin.listUsers();
-    const adminUser = allUsers.users.find(u => u.email === ADMIN_USER.email);
-    const regularUser = allUsers.users.find(u => u.email === REGULAR_USER.email);
+    const adminUser = allUsers.users.find((u) => u.email === ADMIN_USER.email);
+    const regularUser = allUsers.users.find(
+      (u) => u.email === REGULAR_USER.email
+    );
 
     // Clean up roles first
     const userIds = [];
@@ -277,17 +285,16 @@ export async function teardownTestUsers(): Promise<void> {
 
     if (userIds.length > 0) {
       try {
-        await adminClient
-          .from('roles')
-          .delete()
-          .in('user_id', userIds);
+        await adminClient.from('roles').delete().in('user_id', userIds);
       } catch (roleError) {
         console.warn('⚠️ Warning cleaning up roles:', roleError);
       }
     }
 
     // Delete users with retries
-    const usersToDelete = [adminUser, regularUser].filter((user): user is NonNullable<typeof user> => !!user);
+    const usersToDelete = [adminUser, regularUser].filter(
+      (user): user is NonNullable<typeof user> => !!user
+    );
     for (const user of usersToDelete) {
       try {
         await adminClient.auth.admin.deleteUser(user.id);
@@ -297,7 +304,10 @@ export async function teardownTestUsers(): Promise<void> {
         try {
           await adminClient.auth.admin.deleteUser(user.id, true);
         } catch (forceDeleteError) {
-          console.warn(`⚠️ Force delete also failed for ${user.email}:`, forceDeleteError);
+          console.warn(
+            `⚠️ Force delete also failed for ${user.email}:`,
+            forceDeleteError
+          );
         }
       }
     }
@@ -307,4 +317,4 @@ export async function teardownTestUsers(): Promise<void> {
     console.error('❌ Error cleaning up test users:', error);
     // Don't throw here to avoid breaking other tests
   }
-} 
+}
