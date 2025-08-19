@@ -6,7 +6,7 @@ import {
   getAllOrganisations
 } from '@/app/admin/users/actions';
 import Link from 'next/link';
-import { EditOrganisationForm } from '@/components/admin/EditOrganisationForm';
+import { EditOrganisationForm } from '@/components/admin/EditOrganizationForm';
 import { notFound } from 'next/navigation';
 
 export default async function EditOrganisationPage({
