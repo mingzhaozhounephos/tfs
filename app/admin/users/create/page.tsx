@@ -51,14 +51,14 @@ export default async function CreateUserPage() {
       </div>
 
       {/* Header */}
-      <div className="mb-6">
-        <Button asChild variant="outline" className="mb-4">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
+        <div>
+          <h2 className="text-xl font-bold mb-1">Create New User</h2>
+          <p className="text-sm text-gray-600">Add a new user to the system</p>
+        </div>
+        <Button asChild variant="outline">
           <Link href="/admin/users">← Back to Users</Link>
         </Button>
-        <h2 className="text-xl font-bold mb-1">Create New User</h2>
-        <p className="text-sm text-gray-600 mb-4">
-          Add a new user to the system
-        </p>
       </div>
 
       <CreateUserForm organisations={organisations} />
