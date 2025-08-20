@@ -102,6 +102,7 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
               setFormData({ ...formData, email: e.target.value })
             }
             placeholder="user@example.com"
+            className="border border-[#EA384C] rounded-lg px-4 py-2 text-sm bg-[#fafbfc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28896] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-gray-50 focus:bg-white focus:border-[#EA384C] transition"
           />
         </div>
 
@@ -115,6 +116,7 @@ export default function UserForm({ organisations, user, mode }: UserFormProps) {
               setFormData({ ...formData, full_name: e.target.value })
             }
             placeholder="John Doe"
+            className="border border-[#EA384C] rounded-lg px-4 py-2 text-sm bg-[#fafbfc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28896] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-gray-50 focus:bg-white focus:border-[#EA384C] transition"
           />
         </div>
       </div>

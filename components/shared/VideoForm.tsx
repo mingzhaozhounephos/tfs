@@ -115,6 +115,7 @@ export function VideoForm({
               onChange={(e) => setTitle(e.target.value)}
               required
               placeholder="Enter video title"
+              className="border border-[#EA384C] rounded-lg px-4 py-2 text-sm bg-[#fafbfc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28896] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-gray-50 focus:bg-white focus:border-[#EA384C] transition"
             />
           </div>
           <div>
@@ -125,6 +126,7 @@ export function VideoForm({
               onChange={(e) => setYoutubeUrl(e.target.value)}
               required
               placeholder="https://www.youtube.com/watch?v=..."
+              className="border border-[#EA384C] rounded-lg px-4 py-2 text-sm bg-[#fafbfc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28896] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-gray-50 focus:bg-white focus:border-[#EA384C] transition"
             />
           </div>
           <div className="md:col-span-2">
@@ -135,6 +137,7 @@ export function VideoForm({
               onChange={(e) => setDescription(e.target.value)}
               required
               placeholder="Enter video description"
+              className="border border-[#EA384C] rounded-lg px-4 py-2 text-sm bg-[#fafbfc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28896] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-gray-50 focus:bg-white focus:border-[#EA384C] transition"
             />
           </div>
           <div>
@@ -159,6 +162,7 @@ export function VideoForm({
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
               placeholder="10:00"
+              className="border border-[#EA384C] rounded-lg px-4 py-2 text-sm bg-[#fafbfc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28896] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-gray-50 focus:bg-white focus:border-[#EA384C] transition"
             />
           </div>
           <div className="md:col-span-2">
