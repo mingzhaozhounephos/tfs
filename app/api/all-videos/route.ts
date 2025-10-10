@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
         `
         )
         .eq('id', videoId)
-        .eq('admin_user', user.id)
+        // .eq('admin_user', user.id)
         .single();
 
       if (error) {
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
           )
         `
         )
-        .eq('admin_user', user.id)
+        // .eq('admin_user', user.id)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -249,11 +249,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete the video
-    const { error } = await supabase
-      .from('videos')
-      .delete()
-      .eq('id', id)
-      .eq('admin_user', user.id); // Ensure user can only delete their own videos
+    const { error } = await supabase.from('videos').delete().eq('id', id);
+    // .eq('admin_user', user.id); // Ensure user can only delete their own videos
 
     if (error) {
       throw error;
