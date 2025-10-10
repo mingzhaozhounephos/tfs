@@ -134,7 +134,7 @@ export function AssignVideoModal({
       {/* Overlay: semi-transparent black */}
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       {/* Modal */}
-      <div className="relative bg-white rounded-xl border border-gray-200 p-6 w-full max-w-md mx-auto shadow-lg z-10 flex flex-col">
+      <div className="relative bg-white rounded-xl border border-gray-200 p-6 w-full max-w-md mx-4 shadow-lg z-10 flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-semibold">Assign Video to Users</h2>
@@ -171,12 +171,12 @@ export function AssignVideoModal({
               placeholder="Search users..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 border border-[#EA384C] rounded-lg px-4 py-2 text-sm bg-[#fafbfc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28896] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm w-64 bg-gray-50 focus:bg-white focus:border-[#EA384C] transition"
+              className="w-full pl-10 border border-[#EA384C] rounded-lg px-4 py-2 text-sm bg-[#fafbfc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28896] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-gray-50 focus:bg-white focus:border-[#EA384C] transition"
             />
           </div>
         </div>
         {/* User List */}
-        <div className="flex-1 overflow-y-auto mb-4 border border-[#e6e6e6]">
+        <div className="flex-1 overflow-y-auto mb-4 border border-[#e6e6e6] max-h-96">
           {filteredUsers.length === 0 ? (
             <div className="p-4 text-gray-500 text-sm">No users found.</div>
           ) : (
