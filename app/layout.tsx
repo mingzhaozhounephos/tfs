@@ -4,7 +4,7 @@ import MainContentWrapper from '@/components/ui/Navbar/MainContentWrapper';
 import { Toaster } from '@/components/ui/sonner';
 import { PropsWithChildren, Suspense } from 'react';
 import { getURL } from '@/utils/helpers';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import Providers from '@/providers/providers';
 import 'styles/main.css';
 import {
@@ -27,6 +27,9 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: PropsWithChildren) {
   const cookieStore = await cookies();
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || '';
+
   const theme = cookieStore.get('theme')?.value;
   console.log('using theme', theme);
 
@@ -54,17 +57,23 @@ export default async function RootLayout({ children }: PropsWithChildren) {
 
   const isAuthenticated = !!user;
 
+  // Routes that should not show the navbar (even when authenticated)
+  const hideNavbarRoutes = ['/auth/update-password'];
+  const shouldHideNavbar = hideNavbarRoutes.some((route) =>
+    pathname.includes(route)
+  );
+
   return (
     <html lang="en" className={theme || 'light'}>
       <Providers userQueryResult={userQueryResult}>
         <body>
-          {isAuthenticated ? (
+          {isAuthenticated && !shouldHideNavbar ? (
             <>
               <Navbar />
               <MainContentWrapper>{children}</MainContentWrapper>
             </>
           ) : (
-            // Simple layout for unauthenticated users
+            // Simple layout for unauthenticated users or specific routes
             <main className="min-h-screen">{children}</main>
           )}
           <Suspense>
