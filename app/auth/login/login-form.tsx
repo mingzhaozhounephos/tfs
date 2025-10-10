@@ -33,11 +33,26 @@ export function LoginForm({
 
     try {
       await SignIn(email, password);
-      if (error) throw error;
       // Update this route to redirect to an authenticated route. The user already has an active session.
       router.push('/');
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred');
+      // Provide user-friendly error messages
+      let errorMessage =
+        'Login failed. Please check your credentials and try again.';
+
+      if (error instanceof Error) {
+        const message = error.message.toLowerCase();
+        if (message.includes('invalid') || message.includes('credentials')) {
+          errorMessage = 'Invalid email or password. Please try again.';
+        } else if (message.includes('network') || message.includes('fetch')) {
+          errorMessage =
+            'Network error. Please check your connection and try again.';
+        } else if (message.includes('too many')) {
+          errorMessage = 'Too many login attempts. Please try again later.';
+        }
+      }
+
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
