@@ -175,6 +175,14 @@ export function LoginForm({
                   Don&apos;t have an account? Register
                 </Link>
               </p>
+              <p className="text-sm text-center mt-2">
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-[#EA384C] hover:underline"
+                >
+                  Forgot your password?
+                </Link>
+              </p>
             </div>
           </div>
         </div>
