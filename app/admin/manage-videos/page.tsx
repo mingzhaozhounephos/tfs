@@ -87,7 +87,7 @@ export default async function ManageVideosPage() {
       )
     `
     )
-    .eq('admin_user', user.id)
+    // .eq('admin_user', user.id)
     .order('created_at', { ascending: false })
     .limit(50);
 
