@@ -39,17 +39,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify the video belongs to the admin user
+    // Verify the video exists (any admin can assign any video)
     const { data: videoData, error: videoError } = await supabase
       .from('videos')
       .select('id, admin_user')
       .eq('id', videoId)
-      .eq('admin_user', user.id)
       .single();
 
     if (videoError || !videoData) {
       return NextResponse.json(
-        { success: false, error: 'Video not found or access denied' },
+        { success: false, error: 'Video not found' },
         { status: 404 }
       );
     }
